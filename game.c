@@ -34,23 +34,11 @@ u8 __fastcall__ stairs_check(void);
 #define STATE_CLIMB 1
 #define STATE_JUMP  2
 
-object_t player =
-{
-    fixed(128, 0), fixed(128, 0), /* x, y */
-    0, 0,                         /* hspeed, vspeed. */
-    0, RIGHT,                     /* sprite_mirrored, dir */
-    STATE_WALK, 0,                /* state, sprite_index */
-};
+#define player objects[0]
 
 #define PLAYER_SPRITE_STAND 0
 #define PLAYER_SPRITE_CLIMB 1
 #define PLAYER_SPRITE_WALK  2
-static u8 player_sprite_index_table[] =
-{
-  0, 1, 16, 17,
-  2, 3, 18, 19,
-  4, 5, 20, 21
-};
 
 static const u8 gravity = 25;
 
@@ -62,10 +50,18 @@ void main()
   PPUCTRL = 0;
   PPUMASK = 0;
 
+  objects[0].x = fixed(128, 0);
+  objects[0].y = fixed(128, 0);
+  objects[0].hspeed = 0;
+  objects[0].vspeed = 0;
+  objects[0].sprite_mirrored = 0;
+  objects[0].dir = RIGHT;
+  objects[0].state = STATE_WALK;
+  objects[0].sprite_index = 0;
+  num_objects++;
+
   load_palette();
   load_level(0);
-
-  setup_sprites();
 
   /* Reset scroll. */
   PPUSCROLL = 0;
@@ -90,7 +86,7 @@ void main()
         break;
     }
 
-    setup_sprites();
+    update_objects();
     wait_vblank();
   }
 }
@@ -111,60 +107,7 @@ void __fastcall__ load_palette(void)
 
 void __fastcall__ setup_sprites(void)
 {
-  static u8 sprite_index0;
-  static u8 sprite_index1;
-  static u8 sprite_index2;
-  static u8 sprite_index3;
 
-  sprite_index0 = player_sprite_index_table[(player.sprite_index << 2) + 0];
-  sprite_index1 = player_sprite_index_table[(player.sprite_index << 2) + 1];
-  sprite_index2 = player_sprite_index_table[(player.sprite_index << 2) + 2];
-  sprite_index3 = player_sprite_index_table[(player.sprite_index << 2) + 3];
-
-  if (player.sprite_mirrored == 0)
-  {
-    SPRITE(0)->x = fix2i(player.x);
-    SPRITE(0)->y = fix2i(player.y);
-    SPRITE(0)->attributes = 0;
-    SPRITE(0)->index = sprite_index0;
-
-    SPRITE(1)->x = fix2i(player.x) + 8;
-    SPRITE(1)->y = fix2i(player.y);
-    SPRITE(1)->attributes = 0;
-    SPRITE(1)->index = sprite_index1;
-
-    SPRITE(2)->x = fix2i(player.x);
-    SPRITE(2)->y = fix2i(player.y) + 8;
-    SPRITE(2)->attributes = 0;
-    SPRITE(2)->index = sprite_index2;
-
-    SPRITE(3)->x = fix2i(player.x) + 8;
-    SPRITE(3)->y = fix2i(player.y) + 8;
-    SPRITE(3)->attributes = 0;
-    SPRITE(3)->index = sprite_index3;
-  }
-  else
-  {
-    SPRITE(0)->x = fix2i(player.x);
-    SPRITE(0)->y = fix2i(player.y);
-    SPRITE(0)->attributes = LEFT;
-    SPRITE(0)->index = sprite_index1;
-
-    SPRITE(1)->x = fix2i(player.x) + 8;
-    SPRITE(1)->y = fix2i(player.y);
-    SPRITE(1)->attributes = LEFT;
-    SPRITE(1)->index = sprite_index0;
-
-    SPRITE(2)->x = fix2i(player.x);
-    SPRITE(2)->y = fix2i(player.y) + 8;
-    SPRITE(2)->attributes = LEFT;
-    SPRITE(2)->index = sprite_index3;
-
-    SPRITE(3)->x = fix2i(player.x) + 8;
-    SPRITE(3)->y = fix2i(player.y) + 8;
-    SPRITE(3)->attributes = LEFT;
-    SPRITE(3)->index = sprite_index2;
-  }
 }
 
 void __fastcall__ climb(u8 gamepad_state)

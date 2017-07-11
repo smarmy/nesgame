@@ -3,4 +3,5 @@
 game.s
 level.s
 vram.s
+object.s
 *.deb

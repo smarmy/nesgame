@@ -13,4 +13,6 @@ typedef struct sprite_t
 
 #define SPRITE(X) (((sprite_t*)0x200) + X )
 
+#define ATTR_MIRRORED 64
+
 #endif
