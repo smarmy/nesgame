@@ -3,9 +3,9 @@ ca65=../bin/ca65.exe
 ld65=../bin/ld65.exe
 
 all:
-	$(cc65) -Oi game.c
-	$(cc65) -Oi level.c
-	$(cc65) -Oi object.c
+	$(cc65) -Oi -T game.c
+	$(cc65) -Oi -T level.c
+	$(cc65) -Oi -T object.c
 	$(ca65) crt0.s -I ../asminc/
 	$(ca65) asm.s -I ../asminc/
 	$(ca65) game.s -I ../asminc/

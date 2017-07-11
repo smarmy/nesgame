@@ -4,21 +4,22 @@
 #include "fixed.h"
 #include "typedef.h"
 
+#define MAX_OBJECTS 10
+
 typedef struct object_t
 {
-  fixed_t x;
-  fixed_t y;
-  fixed_t hspeed;
-  fixed_t vspeed;
-  u8 sprite_mirrored;
-  u8 dir;
-  u8 state;
-  u8 sprite_index;
+  fixed_t x[MAX_OBJECTS];
+  fixed_t y[MAX_OBJECTS];
+  fixed_t hspeed[MAX_OBJECTS];
+  fixed_t vspeed[MAX_OBJECTS];
+  u8 sprite_mirrored[MAX_OBJECTS];
+  u8 dir[MAX_OBJECTS];
+  u8 state[MAX_OBJECTS];
+  u8 sprite_index[MAX_OBJECTS];
 } object_t;
 
-#define MAX_OBJECTS 10
 extern u8 num_objects;
-extern object_t objects[MAX_OBJECTS];
+extern object_t objects;
 
 void __fastcall__ update_objects(void);
 
