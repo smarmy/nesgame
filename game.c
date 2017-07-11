@@ -4,7 +4,7 @@
 #include "fixed.h"
 #include "object.h"
 #include "level.h"
-#include "vram.h"
+#include "ppu.h"
 
 #define MAX(A, B) (A > B ? A : B)
 #define MIN(A, B) (A < B ? A : B)
@@ -64,7 +64,6 @@ void main()
 
   load_palette();
   load_level(0);
-  copy_vram();
 
   setup_sprites();
 

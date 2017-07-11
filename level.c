@@ -1,5 +1,7 @@
-#include "vram.h"
+#include "ppu.h"
 #include "level.h"
+
+#define MAPLEN 240
 
 static const u8 tiletable[] =
 {
@@ -36,32 +38,37 @@ static void __fastcall__ load_tilemap(void)
   u8 loop;
   u8 tile_index;
   u8 col_cnt;
-  u8* vram_ptr = VRAM;
+
+  u16 offset = 0;
+  u16 base_address = 0x2000;
+  u16 address;
 
   col_cnt = 0;
 
-  for (loop = 0; loop < sizeof(tilemap); loop++)
+  for (loop = 0; loop < MAPLEN; loop++)
   {
     tile_index = tilemap[loop];
 
     /* Multpliy by 4 to get index in tiletable. */
     tile_index = tile_index << 2;
 
-    *(vram_ptr+0)  = tiletable[tile_index+0];
-    *(vram_ptr+1)  = tiletable[tile_index+1];
-    *(vram_ptr+32) = tiletable[tile_index+2];
-    *(vram_ptr+33) = tiletable[tile_index+3];
+    address = base_address + offset;
+
+    ppuwrite(address, tiletable[tile_index+0]);
+    ppuwrite(address+1, tiletable[tile_index+1]);
+    ppuwrite(address+32, tiletable[tile_index+2]);
+    ppuwrite(address+33, tiletable[tile_index+3]);
 
     col_cnt++;
 
     if (col_cnt == 16)
     {
       col_cnt = 0;
-      vram_ptr += 34;
+      offset += 34;
     }
     else
     {
-      vram_ptr += 2;
+      offset += 2;
     }
   }
 }
