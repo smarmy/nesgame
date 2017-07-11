@@ -1,14 +1,11 @@
 #include "asm.h"
 #include "typedef.h"
 #include "sprite.h"
+#include "fixed.h"
+#include "object.h"
 
 #define MAX(A, B) (A > B ? A : B)
 #define MIN(A, B) (A < B ? A : B)
-
-typedef u16 fixed_t;
-#define fixed(Dec, Frac) ((Dec << 8) | (Frac))
-#define fix2i(Fixed) ((Fixed >> 8))
-#define ffrac(Fixed) ((Fixed & 0xFF))
 
 static const u8 pal[] = 
 { 
@@ -61,18 +58,17 @@ u8 __fastcall__ stairs_check(void);
 #define DOWN    1
 #define UP      2
 
-#define STATE_WALK 0
+#define STATE_WALK  0
 #define STATE_CLIMB 1
+#define STATE_JUMP  2
 
-fixed_t player_x = fixed(128, 0);
-fixed_t player_y = fixed(128, 0);
-fixed_t player_hspeed = 0;
-fixed_t player_vspeed = 0;
-u8 player_sprite_mirrored = 0;
-u8 player_dir = RIGHT;
-u8 player_jump = 0;
-u8 player_state = STATE_WALK;
-u8 player_sprite_index = 0;
+object_t player =
+{
+    fixed(128, 0), fixed(128, 0), /* x, y */
+    0, 0,                         /* hspeed, vspeed. */
+    0, RIGHT,                     /* sprite_mirrored, dir */
+    STATE_WALK, 0,                /* state, sprite_index */
+};
 
 #define PLAYER_SPRITE_STAND 0
 #define PLAYER_SPRITE_CLIMB 1
@@ -112,9 +108,10 @@ void main()
   {
     gamepad_state = check_gamepad();
 
-    switch (player_state)
+    switch (player.state)
     {
       case STATE_WALK:
+      case STATE_JUMP:
         walk(gamepad_state);
         break;
       case STATE_CLIMB:
@@ -148,52 +145,52 @@ void __fastcall__ setup_sprites(void)
   static u8 sprite_index2;
   static u8 sprite_index3;
 
-  sprite_index0 = player_sprite_index_table[(player_sprite_index << 2) + 0];
-  sprite_index1 = player_sprite_index_table[(player_sprite_index << 2) + 1];
-  sprite_index2 = player_sprite_index_table[(player_sprite_index << 2) + 2];
-  sprite_index3 = player_sprite_index_table[(player_sprite_index << 2) + 3];
+  sprite_index0 = player_sprite_index_table[(player.sprite_index << 2) + 0];
+  sprite_index1 = player_sprite_index_table[(player.sprite_index << 2) + 1];
+  sprite_index2 = player_sprite_index_table[(player.sprite_index << 2) + 2];
+  sprite_index3 = player_sprite_index_table[(player.sprite_index << 2) + 3];
 
-  if (player_sprite_mirrored == 0)
+  if (player.sprite_mirrored == 0)
   {
-    SPRITE(0)->x = fix2i(player_x);
-    SPRITE(0)->y = fix2i(player_y);
+    SPRITE(0)->x = fix2i(player.x);
+    SPRITE(0)->y = fix2i(player.y);
     SPRITE(0)->attributes = 0;
     SPRITE(0)->index = sprite_index0;
 
-    SPRITE(1)->x = fix2i(player_x) + 8;
-    SPRITE(1)->y = fix2i(player_y);
+    SPRITE(1)->x = fix2i(player.x) + 8;
+    SPRITE(1)->y = fix2i(player.y);
     SPRITE(1)->attributes = 0;
     SPRITE(1)->index = sprite_index1;
 
-    SPRITE(2)->x = fix2i(player_x);
-    SPRITE(2)->y = fix2i(player_y) + 8;
+    SPRITE(2)->x = fix2i(player.x);
+    SPRITE(2)->y = fix2i(player.y) + 8;
     SPRITE(2)->attributes = 0;
     SPRITE(2)->index = sprite_index2;
 
-    SPRITE(3)->x = fix2i(player_x) + 8;
-    SPRITE(3)->y = fix2i(player_y) + 8;
+    SPRITE(3)->x = fix2i(player.x) + 8;
+    SPRITE(3)->y = fix2i(player.y) + 8;
     SPRITE(3)->attributes = 0;
     SPRITE(3)->index = sprite_index3;
   }
   else
   {
-    SPRITE(0)->x = fix2i(player_x);
-    SPRITE(0)->y = fix2i(player_y);
+    SPRITE(0)->x = fix2i(player.x);
+    SPRITE(0)->y = fix2i(player.y);
     SPRITE(0)->attributes = LEFT;
     SPRITE(0)->index = sprite_index1;
 
-    SPRITE(1)->x = fix2i(player_x) + 8;
-    SPRITE(1)->y = fix2i(player_y);
+    SPRITE(1)->x = fix2i(player.x) + 8;
+    SPRITE(1)->y = fix2i(player.y);
     SPRITE(1)->attributes = LEFT;
     SPRITE(1)->index = sprite_index0;
 
-    SPRITE(2)->x = fix2i(player_x);
-    SPRITE(2)->y = fix2i(player_y) + 8;
+    SPRITE(2)->x = fix2i(player.x);
+    SPRITE(2)->y = fix2i(player.y) + 8;
     SPRITE(2)->attributes = LEFT;
     SPRITE(2)->index = sprite_index3;
 
-    SPRITE(3)->x = fix2i(player_x) + 8;
-    SPRITE(3)->y = fix2i(player_y) + 8;
+    SPRITE(3)->x = fix2i(player.x) + 8;
+    SPRITE(3)->y = fix2i(player.y) + 8;
     SPRITE(3)->attributes = LEFT;
     SPRITE(3)->index = sprite_index2;
   }
@@ -254,107 +251,107 @@ void __fastcall__ climb(u8 gamepad_state)
 
   if ((gamepad_state & PAD_A) || stairs_check() == 0)
   {
-    player_state = STATE_WALK;
-    player_sprite_index = PLAYER_SPRITE_STAND;
+    player.state = STATE_WALK;
+    player.sprite_index = PLAYER_SPRITE_STAND;
     return;
   }
 
   if (gamepad_state & PAD_UP)
   {
-    player_vspeed = fixed(1, 127);
-    player_dir = UP;
+    player.vspeed = fixed(1, 127);
+    player.dir = UP;
 
     flip_counter++;
   }
   else if (gamepad_state & PAD_DOWN)
   {
-    player_vspeed = fixed(1, 127);
-    player_dir = DOWN;
+    player.vspeed = fixed(1, 127);
+    player.dir = DOWN;
 
     flip_counter++;
   }
 
-  player_sprite_mirrored = flip_counter & 8;
+  player.sprite_mirrored = flip_counter & 8;
 
-  if (player_vspeed > 0)
+  if (player.vspeed > 0)
   {
-    if (player_dir == UP)
+    if (player.dir == UP)
     {
-      tmp = player_y - player_vspeed;
+      tmp = player.y - player.vspeed;
 
-      while (player_y > tmp)
+      while (player.y > tmp)
       {
         if (colcheck_up())
         {
           break;
         }
 
-        player_y -= fixed(1, 0);
+        player.y -= fixed(1, 0);
       }
     }
     else
     {
-      tmp = player_y + player_vspeed;
+      tmp = player.y + player.vspeed;
 
-      while (player_y < tmp)
+      while (player.y < tmp)
       {
         if (colcheck())
         {
-          player_state = STATE_WALK;
-          player_sprite_index = PLAYER_SPRITE_STAND;
+          player.state = STATE_WALK;
+          player.sprite_index = PLAYER_SPRITE_STAND;
           break;
         }
 
-        player_y += fixed(1, 0);
+        player.y += fixed(1, 0);
       }
     }
 
-    player_vspeed = 0;
+    player.vspeed = 0;
   }
 
   if (gamepad_state & PAD_LEFT)
   {
-    player_hspeed = fixed(1, 127);
-    player_dir = LEFT;
+    player.hspeed = fixed(1, 127);
+    player.dir = LEFT;
   }
   else if (gamepad_state & PAD_RIGHT)
   {
-    player_hspeed = fixed(1, 127);
-    player_dir = RIGHT;
+    player.hspeed = fixed(1, 127);
+    player.dir = RIGHT;
   }
 
-  if (player_hspeed > 0)
+  if (player.hspeed > 0)
   {
-    if (player_dir == LEFT)
+    if (player.dir == LEFT)
     {
-      tmp = player_x - player_hspeed;
+      tmp = player.x - player.hspeed;
 
-      while (player_x > tmp)
+      while (player.x > tmp)
       {
         if (colcheck_left())
         {
           break;
         }
 
-        player_x -= fixed(1, 0);
+        player.x -= fixed(1, 0);
       }
     }
     else
     {
-      tmp = player_x + player_hspeed;
+      tmp = player.x + player.hspeed;
 
-      while (player_x < tmp)
+      while (player.x < tmp)
       {
         if (colcheck_right())
         {
           break;
         }
 
-        player_x += fixed(1, 0);
+        player.x += fixed(1, 0);
       }
     }
 
-    player_hspeed = 0;
+    player.hspeed = 0;
   }
 }
 
@@ -368,138 +365,138 @@ void __fastcall__ walk(u8 gamepad_state)
   {
     if (stairs_check())
     {
-      player_hspeed = 0;
-      player_vspeed = 0;
-      player_state = STATE_CLIMB;
-      player_dir = UP;
-      player_sprite_mirrored = 0;
-      player_sprite_index = PLAYER_SPRITE_CLIMB;
+      player.hspeed = 0;
+      player.vspeed = 0;
+      player.state = STATE_CLIMB;
+      player.dir = UP;
+      player.sprite_mirrored = 0;
+      player.sprite_index = PLAYER_SPRITE_CLIMB;
       return;
     }
   }
 
   if (gamepad_state & PAD_RIGHT)
   {
-    player_hspeed = fixed(1, 127);
-    player_dir = RIGHT;
-    player_sprite_mirrored = 0;
+    player.hspeed = fixed(1, 127);
+    player.dir = RIGHT;
+    player.sprite_mirrored = 0;
   }
   else if (gamepad_state & PAD_LEFT)
   {
-    player_hspeed = fixed(1, 127);
-    player_dir = LEFT;
-    player_sprite_mirrored = 1;
+    player.hspeed = fixed(1, 127);
+    player.dir = LEFT;
+    player.sprite_mirrored = 1;
   }
   else
   {
-    player_hspeed = 0;
+    player.hspeed = 0;
   }
 
   if ((gamepad_state & PAD_A) && colcheck())
   {
-    player_jump = 1;
-    player_vspeed = fixed(2, 0);
+    player.state = STATE_JUMP;
+    player.vspeed = fixed(2, 0);
   }
 
-  if (player_jump == 0)
+  if (player.state == STATE_WALK)
   {
     if (!colcheck())
     {
-      player_sprite_index = PLAYER_SPRITE_WALK;
-      player_vspeed += gravity;
-      player_vspeed = MIN(fixed(2, 0), player_vspeed);
+      player.sprite_index = PLAYER_SPRITE_WALK;
+      player.vspeed += gravity;
+      player.vspeed = MIN(fixed(2, 0), player.vspeed);
 
       /* Update position. */
-      tmp = player_y + player_vspeed;
-      while (player_y < tmp)
+      tmp = player.y + player.vspeed;
+      while (player.y < tmp)
       {
-        player_y += fixed(1, 0);
+        player.y += fixed(1, 0);
 
         if (colcheck())
         {
-          player_vspeed = 0;
+          player.vspeed = 0;
           break;
         }
       }
     }
     else
     {
-      player_vspeed = 0;
+      player.vspeed = 0;
     }
   }
   else
   {
-    player_sprite_index = PLAYER_SPRITE_WALK;
-    player_vspeed -= gravity;
+    player.sprite_index = PLAYER_SPRITE_WALK;
+    player.vspeed -= gravity;
 
-    tmp = player_y - player_vspeed;
-    while (player_y > tmp)
+    tmp = player.y - player.vspeed;
+    while (player.y > tmp)
     {
       if (colcheck_up())
       {
-        player_vspeed = 0;
-        player_jump = 0;
+        player.vspeed = 0;
+        player.state = STATE_WALK;
         break;
       }
 
-      player_y -= fixed(1, 0);
+      player.y -= fixed(1, 0);
     }
 
-    if ((i16)player_vspeed <= 0)
+    if ((i16)player.vspeed <= 0)
     {
-      player_vspeed = 0;
-      player_jump = 0;
+      player.vspeed = 0;
+      player.state = STATE_WALK;
     }
   }
 
   /* Move player by speed. */
-  if (player_dir == LEFT)
+  if (player.dir == LEFT)
   {
-    /*player_x -= player_hspeed;*/
-    tmp = player_x - player_hspeed;
-    while (player_x > tmp)
+    /*player.x -= player.hspeed;*/
+    tmp = player.x - player.hspeed;
+    while (player.x > tmp)
     {
       if (colcheck_left())
       {
-        player_hspeed = 0;
+        player.hspeed = 0;
         break;
       }
 
-      player_x -= fixed(1, 0);
+      player.x -= fixed(1, 0);
     }
   }
   else
   {
-    /*player_x += player_hspeed;*/
-    tmp = player_x + player_hspeed;
-    while (player_x < tmp)
+    /*player.x += player.hspeed;*/
+    tmp = player.x + player.hspeed;
+    while (player.x < tmp)
     {
       if (colcheck_right())
       {
-        player_hspeed = 0;
+        player.hspeed = 0;
         break;
       }
 
-      player_x += fixed(1, 0);
+      player.x += fixed(1, 0);
     }
   }
 
-  if (player_hspeed > 0 && player_vspeed == 0)
+  if (player.hspeed > 0 && player.vspeed == 0)
   {
     walk_counter++;
-    if (walk_counter & 8) player_sprite_index = PLAYER_SPRITE_WALK;
-    else player_sprite_index = PLAYER_SPRITE_STAND;
+    if (walk_counter & 8) player.sprite_index = PLAYER_SPRITE_WALK;
+    else player.sprite_index = PLAYER_SPRITE_STAND;
   }
-  else if (player_hspeed == 0 && player_vspeed == 0)
+  else if (player.hspeed == 0 && player.vspeed == 0)
   {
-    player_sprite_index = PLAYER_SPRITE_STAND;
+    player.sprite_index = PLAYER_SPRITE_STAND;
   }
 }
 
 u8 __fastcall__ colcheck(void)
 {
-  u8 tile_index_1 = (((fix2i(player_y)+17) >> 4) << 4) + ((fix2i(player_x) + 6) >> 4);
-  u8 tile_index_2 = (((fix2i(player_y)+17) >> 4) << 4) + ((fix2i(player_x) + 10) >> 4);
+  u8 tile_index_1 = (((fix2i(player.y)+17) >> 4) << 4) + ((fix2i(player.x) + 6) >> 4);
+  u8 tile_index_2 = (((fix2i(player.y)+17) >> 4) << 4) + ((fix2i(player.x) + 10) >> 4);
 
   if (tilemap[tile_index_1] == 1) return 1;
   if (tilemap[tile_index_2] == 1) return 1;
@@ -509,8 +506,8 @@ u8 __fastcall__ colcheck(void)
 
 u8 __fastcall__ colcheck_up(void)
 {
-  u8 tile_index_1 = (((fix2i(player_y)-1) >> 4) << 4) + ((fix2i(player_x) + 6) >> 4);
-  u8 tile_index_2 = (((fix2i(player_y)-1) >> 4) << 4) + ((fix2i(player_x) + 10) >> 4);
+  u8 tile_index_1 = (((fix2i(player.y)-1) >> 4) << 4) + ((fix2i(player.x) + 6) >> 4);
+  u8 tile_index_2 = (((fix2i(player.y)-1) >> 4) << 4) + ((fix2i(player.x) + 10) >> 4);
 
   if (tilemap[tile_index_1] == 1) return 1;
   if (tilemap[tile_index_2] == 1) return 1;
@@ -520,8 +517,8 @@ u8 __fastcall__ colcheck_up(void)
 
 u8 __fastcall__ colcheck_right(void)
 {
-  u8 tile_index_1 = (((fix2i(player_y)+2) >> 4) << 4) + ((fix2i(player_x) + 17) >> 4);
-  u8 tile_index_2 = (((fix2i(player_y)+15) >> 4) << 4) + ((fix2i(player_x) + 17) >> 4);
+  u8 tile_index_1 = (((fix2i(player.y)+2) >> 4) << 4) + ((fix2i(player.x) + 17) >> 4);
+  u8 tile_index_2 = (((fix2i(player.y)+15) >> 4) << 4) + ((fix2i(player.x) + 17) >> 4);
 
   if (tilemap[tile_index_1] == 1) return 1;
   if (tilemap[tile_index_2] == 1) return 1;
@@ -531,8 +528,8 @@ u8 __fastcall__ colcheck_right(void)
 
 u8 __fastcall__ colcheck_left(void)
 {
-  u8 tile_index_1 = (((fix2i(player_y)+2) >> 4) << 4) + ((fix2i(player_x) - 1) >> 4);
-  u8 tile_index_2 = (((fix2i(player_y)+15) >> 4) << 4) + ((fix2i(player_x) - 1) >> 4);
+  u8 tile_index_1 = (((fix2i(player.y)+2) >> 4) << 4) + ((fix2i(player.x) - 1) >> 4);
+  u8 tile_index_2 = (((fix2i(player.y)+15) >> 4) << 4) + ((fix2i(player.x) - 1) >> 4);
 
   if (tilemap[tile_index_1] == 1) return 1;
   if (tilemap[tile_index_2] == 1) return 1;
@@ -542,8 +539,8 @@ u8 __fastcall__ colcheck_left(void)
 
 u8 __fastcall__ stairs_check(void)
 {
-  u8 tile_index_1 = (((fix2i(player_y)) >> 4) << 4) + ((fix2i(player_x) + 6) >> 4);
-  u8 tile_index_2 = (((fix2i(player_y)) >> 4) << 4) + ((fix2i(player_x) + 10) >> 4);
+  u8 tile_index_1 = (((fix2i(player.y)) >> 4) << 4) + ((fix2i(player.x) + 6) >> 4);
+  u8 tile_index_2 = (((fix2i(player.y)) >> 4) << 4) + ((fix2i(player.x) + 10) >> 4);
 
   if (tilemap[tile_index_1] == 2) return 1;
   if (tilemap[tile_index_2] == 2) return 1;
