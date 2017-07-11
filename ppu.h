@@ -14,8 +14,8 @@
 #define OAM_DMA   (*(u8*)0x4014)
 
 #define ppuwrite(Address, Byte) \
-    PPUADDR = (u8)(Address >> 8); \
-    PPUADDR = (u8)(Address & 0xFF); \
-    PPUDATA = Byte
+    PPUADDR = (u8)((Address) >> 8); \
+    PPUADDR = (u8)((Address) & 0xFF); \
+    PPUDATA = (Byte)
 
 #endif /* PPU_H_ */
