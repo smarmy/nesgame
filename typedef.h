@@ -6,5 +6,10 @@ typedef signed char i8;
 typedef unsigned int u16;
 typedef signed int i16;
 
+#define LEFT    64
+#define RIGHT   0
+#define DOWN    1
+#define UP      2
+
 #endif
 

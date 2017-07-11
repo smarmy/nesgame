@@ -4,4 +4,5 @@ game.s
 level.s
 vram.s
 object.s
+colcheck.s
 *.deb
