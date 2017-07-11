@@ -1,10 +1,3 @@
-/*
- * object.h
- *
- *  Created on: 11 juli 2017
- *      Author: thene_000
- */
-
 #ifndef OBJECT_H_
 #define OBJECT_H_
 

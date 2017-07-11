@@ -1,10 +1,3 @@
-/*
- * fixed.h
- *
- *  Created on: 11 juli 2017
- *      Author: thene_000
- */
-
 #ifndef FIXED_H_
 #define FIXED_H_
 

@@ -1,4 +1,6 @@
 *.o
 *.nes
 game.s
+level.s
+vram.s
 *.deb

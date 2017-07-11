@@ -4,7 +4,11 @@ ld65=../bin/ld65.exe
 
 all:
 	$(cc65) -Oi game.c
+	$(cc65) -Oi level.c
+	$(cc65) -Oi vram.c
 	$(ca65) crt0.s -I ../asminc/
 	$(ca65) asm.s -I ../asminc/
 	$(ca65) game.s -I ../asminc/
-	$(ld65) -C nes.cfg -o game.nes game.o crt0.o asm.o -L ../lib/ nes.lib
+	$(ca65) level.s -I ../asminc/
+	$(ca65) vram.s -I ../asminc/
+	$(ld65) -C nes.cfg -o game.nes game.o level.o vram.o crt0.o asm.o -L ../lib/ nes.lib
