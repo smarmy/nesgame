@@ -3,10 +3,12 @@
 
 #include "typedef.h"
 
+#define MAPLEN 240
+
 /**
- * Pointer to the current level.
+ * Buffer in RAM where the levels are stored.
  */
-extern const u8* tilemap;
+extern u8 tilemap[MAPLEN];
 
 /**
  * Load a new level into RAM and set the tilemap pointer.

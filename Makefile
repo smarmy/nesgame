@@ -11,8 +11,9 @@ all:
 	$(cc65) $(CFLAGS) colcheck.c
 	$(ca65) crt0.asm -I ../asminc/
 	$(ca65) asm.asm -I ../asminc/
+	$(ca65) levels.asm
 	$(ca65) game.s -I ../asminc/
 	$(ca65) level.s -I ../asminc/
 	$(ca65) object.s -I ../asminc/
 	$(ca65) colcheck.s -I ../asminc/
-	$(ld65) -C nes.cfg -o game.nes game.o level.o object.o colcheck.o crt0.o asm.o -L ../lib/ nes.lib
+	$(ld65) -C nes.cfg -o game.nes game.o level.o object.o colcheck.o crt0.o asm.o levels.o -L ../lib/ nes.lib
