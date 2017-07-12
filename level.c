@@ -142,3 +142,51 @@ void __fastcall__ load_level(u8 number)
     }
   }
 }
+
+void __fastcall__ remove_tile(u8 tile_index)
+{
+  static const u16 base_address = 0x2000;
+  static u16 offset;
+  static u8 loop;
+  static u8 col_cnt;
+
+  tilemap[tile_index] = 0;
+
+  /* setup offset to PPU address ... */
+  col_cnt = 0;
+  offset = base_address;
+  for (loop = 0; loop < tile_index; loop++)
+  {
+    col_cnt++;
+    if (col_cnt == 16)
+    {
+      offset += 34;
+      col_cnt = 0;
+    }
+    else
+    {
+      offset += 2;
+    }
+  }
+
+  *(VRAMBUFFER+1) = (u8)(offset >> 8);
+  *(VRAMBUFFER+2) = (u8)(offset & 0xFF);
+  *(VRAMBUFFER+3) = 0;
+
+  offset++;
+  *(VRAMBUFFER+4) = (u8)(offset >> 8);
+  *(VRAMBUFFER+5) = (u8)(offset & 0xFF);
+  *(VRAMBUFFER+6) = 0;
+
+  offset += 31;
+  *(VRAMBUFFER+7) = (u8)(offset >> 8);
+  *(VRAMBUFFER+8) = (u8)(offset & 0xFF);
+  *(VRAMBUFFER+9) = 0;
+
+  offset++;
+  *(VRAMBUFFER+10) = (u8)(offset >> 8);
+  *(VRAMBUFFER+11) = (u8)(offset & 0xFF);
+  *(VRAMBUFFER+12) = 0;
+
+  *(VRAMBUFFER) = 4;
+}

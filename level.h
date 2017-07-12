@@ -15,4 +15,10 @@ extern u8 tilemap[MAPLEN];
  */
 void __fastcall__ load_level(u8 number);
 
+/**
+ * Remove a tile from the tilemap in RAM. Also buffers an update
+ * of the nametable to the PPU.
+ */
+void __fastcall__ remove_tile(u8 tile_index);
+
 #endif /* LEVEL_H_ */

@@ -56,3 +56,14 @@ u8 __fastcall__ stairs_check(u8 obj_index)
 
   return 0;
 }
+
+u8 __fastcall__ tile_check(u8 obj_index, u8 tile)
+{
+  u8 tile_index_1 = (((fix2i(objects.y[obj_index])+2) >> 4) << 4) + ((fix2i(objects.x[obj_index]) + 6) >> 4);
+  u8 tile_index_2 = (((fix2i(objects.y[obj_index])+15) >> 4) << 4) + ((fix2i(objects.x[obj_index]) + 10) >> 4);
+
+  if (tilemap[tile_index_1] == tile) return tile_index_1;
+  if (tilemap[tile_index_2] == tile) return tile_index_2;
+
+  return 0;
+}

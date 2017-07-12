@@ -18,4 +18,6 @@
     PPUADDR = (u8)((Address) & 0xFF); \
     PPUDATA = (Byte)
 
+#define VRAMBUFFER ((u8*)0x0300)
+
 #endif /* PPU_H_ */

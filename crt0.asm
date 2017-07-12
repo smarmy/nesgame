@@ -88,6 +88,10 @@ start:
         sta     sp
         stx     sp+1            ; Set argument stack ptr
 
+; Clear PPU buffer count memory.
+        lda #0
+        sta $0300
+
 ; Call the module constructors.
 
         jsr     initlib
@@ -122,6 +126,35 @@ nmi:    pha
         lda #$02
         sta OAM_DMA
 
+        ; Perform nametable updates
+        ; $0300: Number of updates
+        ; $0301: PPUADDR hi
+        ; $0302: PPUADDR lo
+        ; $0303: tileId
+        ;     .
+        ;     .
+        ;     .
+        ldx $0300
+        beq @done
+        ldy #$00
+@loop:
+        iny
+        lda $0300, y
+        sta PPUADDR
+        iny
+        lda $0300, y
+        sta PPUADDR
+        iny
+        lda $0300, y
+        sta PPUDATA
+        dex
+        bne @loop
+        stx $0300
+
+        ; Reset scroll (why?)
+        stx PPUSCROLL
+        stx PPUSCROLL
+@done:
         pla
         tax
         pla

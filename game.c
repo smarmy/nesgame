@@ -33,6 +33,7 @@ static const u8 gravity = 25;
 
 void main()
 {
+  static u8 tile_check_index;
   static u8 gamepad_state;
 
   /* Turn off PPU. */
@@ -57,6 +58,7 @@ void main()
   {
     gamepad_state = check_gamepad();
 
+    /* Update player based on input. */
     switch (objects.state[O_PLAYER])
     {
       case STATE_WALK:
@@ -66,6 +68,13 @@ void main()
       case STATE_CLIMB:
         climb(gamepad_state);
         break;
+    }
+
+    /* Check collisions with special tiles. */
+    tile_check_index = tile_check(O_PLAYER, 0x3);
+    if (tile_check_index != 0)
+    {
+      remove_tile(tile_check_index);
     }
 
     update_objects();
