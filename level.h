@@ -5,6 +5,13 @@
 
 #define MAPLEN 240
 
+#define TILE_EMPTY  0x0
+#define TILE_BRICK  0x1
+#define TILE_LADDER 0x2
+#define TILE_KEY    0x3
+#define TILE_LOCK   0x4
+#define TILE_DOOR   0x5
+
 /**
  * Buffer in RAM where the levels are stored.
  */

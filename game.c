@@ -6,6 +6,7 @@
 #include "level.h"
 #include "ppu.h"
 #include "colcheck.h"
+#include "gamedata.h"
 
 #define MAX(A, B) (A > B ? A : B)
 #define MIN(A, B) (A < B ? A : B)
@@ -30,6 +31,7 @@ void __fastcall__ climb(u8 gamepad_state);
 #define PLAYER_SPRITE_WALK  2
 
 static const u8 gravity = 25;
+u8 keys = 0;
 
 void main()
 {
@@ -71,10 +73,11 @@ void main()
     }
 
     /* Check collisions with special tiles. */
-    tile_check_index = tile_check(O_PLAYER, 0x3);
+    tile_check_index = tile_check(O_PLAYER, TILE_KEY);
     if (tile_check_index != 0)
     {
       remove_tile(tile_check_index);
+      keys++;
     }
 
     update_objects();
