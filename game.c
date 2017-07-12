@@ -42,9 +42,6 @@ void main()
   create_object(O_PLAYER, 128, 128);
   create_object(O_BAT, 96, 112);
 
-  objects.dir[O_PLAYER] = RIGHT;
-  objects.state[O_PLAYER] = STATE_WALK;
-
   load_palette();
   load_level(0);
 

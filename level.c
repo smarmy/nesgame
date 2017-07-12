@@ -1,4 +1,5 @@
 #include "ppu.h"
+#include "object.h"
 #include "level.h"
 
 /**
@@ -64,10 +65,39 @@ static void __fastcall__ load_tilemap(const u8* lvlptr)
   static u8* map_ptr;
   static u8 rle_cnt;
   static u8 rle_byte;
+  static u8 objcount;
+
+  static u8 otype, x, y;
 
   /* attributes, width and height are hardcoded right now. */
   lvlptr += 3;
 
+  /* read level objects. */
+  num_objects = 0;
+  objcount = *(lvlptr++);
+
+  /* reserve a slot for the player */
+  create_object(O_PLAYER, 0, 0);
+
+  for (i = 0; i < objcount; i++)
+  {
+    otype = *(lvlptr++);
+    x = *(lvlptr++);
+    y = *(lvlptr++);
+
+    if (otype == O_PLAYER)
+    {
+      /* Always write player info to first object. */
+      objects.x[O_PLAYER] = fixed(x, 0);
+      objects.y[O_PLAYER] = fixed(y, 0);
+    }
+    else
+    {
+      create_object(otype, x, y);
+    }
+  }
+
+  /* read tiles. */
   i = 0;
   map_ptr = tilemap;
 

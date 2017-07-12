@@ -153,6 +153,8 @@ void __fastcall__ create_object(u8 type, u8 x, u8 y)
 
   switch (type)
   {
+    case O_PLAYER:
+      break;
     case O_BAT:
       objects.hspeed[num_objects] = fixed(1, 127);
       objects.sprite_index[num_objects] = 3;
