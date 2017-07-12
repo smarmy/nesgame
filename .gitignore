@@ -1,8 +1,4 @@
 *.o
 *.nes
-game.s
-level.s
-vram.s
-object.s
-colcheck.s
+*.s
 *.deb

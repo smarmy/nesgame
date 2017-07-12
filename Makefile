@@ -9,8 +9,8 @@ all:
 	$(cc65) $(CFLAGS) level.c
 	$(cc65) $(CFLAGS) object.c
 	$(cc65) $(CFLAGS) colcheck.c
-	$(ca65) crt0.s -I ../asminc/
-	$(ca65) asm.s -I ../asminc/
+	$(ca65) crt0.asm -I ../asminc/
+	$(ca65) asm.asm -I ../asminc/
 	$(ca65) game.s -I ../asminc/
 	$(ca65) level.s -I ../asminc/
 	$(ca65) object.s -I ../asminc/
