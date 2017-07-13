@@ -153,7 +153,10 @@ void __fastcall__ load_level(u8 number)
     {
       /* Read until end marker. */
       if ((*ptr) == 0xFF && (*(ptr + 1)) == 0xFF)
+      {
+        ptr += 2;
         break;
+      }
       ptr++;
     }
   }

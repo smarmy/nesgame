@@ -24,6 +24,7 @@ void __fastcall__ climb(u8 gamepad_state);
 
 static const u8 gravity = 25;
 u8 keys = 0;
+u8 current_level = 0;
 
 void main()
 {
@@ -34,10 +35,7 @@ void main()
   PPUCTRL = 0;
   PPUMASK = 0;
 
-  create_object(O_PLAYER, 128, 128);
-  create_object(O_BAT, 96, 112);
-
-  load_level(0);
+  load_level(current_level);
 
   /* Reset scroll. */
   PPUSCROLL = 0;
@@ -71,8 +69,32 @@ void main()
 
       remove_tile(tile_check_index);
       keys++;
+      goto end_of_update;
     }
 
+    tile_check_index = tile_check(O_PLAYER, TILE_DOOR);
+    if (tile_check_index != 0)
+    {
+      current_level++;
+
+      /* Turn off PPU. */
+      PPUCTRL = 0;
+      PPUMASK = 0;
+
+      load_level(current_level);
+
+      /* Reset scroll. */
+      PPUSCROLL = 0;
+      PPUSCROLL = 0;
+
+      /* Turn on PPU. */
+      PPUCTRL = 0x88;
+      PPUMASK = 0x1E;
+
+      goto end_of_update;
+    }
+
+end_of_update:
     update_objects();
     wait_vblank();
   }
