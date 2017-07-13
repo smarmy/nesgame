@@ -30,4 +30,9 @@ u8 __fastcall__ check_gamepad(void);
  */
 void __fastcall__ wait_vblank(void);
 
+/**
+ * Play a sound
+ */
+void __fastcall__ play_sound(u8 duration, u8 tone);
+
 #endif

@@ -135,7 +135,7 @@ nmi:    pha
         ;     .
         ;     .
         ldx $0300
-        beq @done
+        beq @audio
         ldy #$00
 @loop:
         iny
@@ -154,7 +154,19 @@ nmi:    pha
         ; Reset scroll (why?)
         stx PPUSCROLL
         stx PPUSCROLL
-@done:
+@audio:
+        ; Check audio
+        lda $0400
+        beq @exit_nmi
+        dec $0400
+        bne @exit_nmi
+@stop_sound:
+        lda #%00000000
+        sta $4015
+        sta $4000
+        sta $4002
+        sta $4003
+@exit_nmi:
         pla
         tax
         pla

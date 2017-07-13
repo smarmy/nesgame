@@ -67,6 +67,8 @@ void main()
     tile_check_index = tile_check(O_PLAYER, TILE_KEY);
     if (tile_check_index != 0)
     {
+      play_sound(4, 0xC9);
+
       remove_tile(tile_check_index);
       keys++;
     }

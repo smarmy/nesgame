@@ -1,6 +1,9 @@
 
         .export _check_gamepad
         .export _wait_vblank
+        .export _play_sound
+
+        .import popa
 
         .include "zeropage.inc"
         .include "constants.inc"
@@ -49,4 +52,25 @@ _check_gamepad:
 _wait_vblank:
         bit PPUSTATUS
         bpl _wait_vblank
+        rts
+
+; ----------------------------------------------------------------------------
+; void __fastcall__ play_sound(u8 duration, u8 tone);
+
+_play_sound:
+        tax         ; save tone
+        jsr popa    ; pop duration from stack into a
+        sta $0400
+
+        lda #%00000001
+        sta $4015
+
+        lda #%01111111
+        sta $4000
+
+        txa    ; tone
+        sta $4002
+        lda #$00
+        sta $4003
+
         rts

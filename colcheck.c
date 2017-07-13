@@ -1,3 +1,4 @@
+#include "asm.h"
 #include "colcheck.h"
 #include "level.h"
 #include "object.h"
@@ -7,8 +8,13 @@ static void __fastcall__ unlock(u8 tile_index)
 {
   if (keys > 0)
   {
+    play_sound(4, 0xF0);
     remove_tile(tile_index);
     keys--;
+  }
+  else
+  {
+    play_sound(1, 0xA0);
   }
 }
 
