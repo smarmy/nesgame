@@ -11,14 +11,6 @@
 #define MAX(A, B) (A > B ? A : B)
 #define MIN(A, B) (A < B ? A : B)
 
-static const u8 pal[] = 
-{ 
-  /* PALETTE 0            PALETTE 1               PALETTE 2               PALETTE 3 */
-  0x3f, 0x01, 0x11, 0x21, 0x3f, 0x01, 0x11, 0x21, 0x3f, 0x01, 0x11, 0x21, 0x3f, 0x01, 0x11, 0x21, /* background. */
-  0x3f, 0x07, 0x26, 0x3d, 0x3f, 0x01, 0x11, 0x21, 0x3f, 0x01, 0x11, 0x21, 0x3f, 0x01, 0x11, 0x21, /* sprites. */
-};
-
-void __fastcall__ load_palette(void);
 void __fastcall__ walk(u8 gamepad_state);
 void __fastcall__ climb(u8 gamepad_state);
 
@@ -45,7 +37,6 @@ void main()
   create_object(O_PLAYER, 128, 128);
   create_object(O_BAT, 96, 112);
 
-  load_palette();
   load_level(0);
 
   /* Reset scroll. */
@@ -82,20 +73,6 @@ void main()
 
     update_objects();
     wait_vblank();
-  }
-}
-
-void __fastcall__ load_palette(void)
-{
-  u8 loop;
-
-  /* Write palette. */
-  PPUADDR = 0x3f;
-  PPUADDR = 0x00;
-
-  for (loop = 0; loop < sizeof(pal); loop++)
-  {
-    PPUDATA = pal[loop];
   }
 }
 

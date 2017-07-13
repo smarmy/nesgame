@@ -97,6 +97,22 @@ static void __fastcall__ load_tilemap(const u8* lvlptr)
     }
   }
 
+  /* read palettes. */
+  PPUADDR = 0x3f;
+  PPUADDR = 0x00;
+  for (i = 0; i < 32; i++)
+  {
+    PPUDATA = *(lvlptr++);
+  }
+
+  /* read nametable attributes. */
+  PPUADDR = 0x23;
+  PPUADDR = 0xC0;
+  for (i = 0; i < 64; i++)
+  {
+    PPUDATA = *(lvlptr++);
+  }
+
   /* read tiles. */
   i = 0;
   map_ptr = tilemap;
