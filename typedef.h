@@ -11,5 +11,8 @@ typedef signed int i16;
 #define DOWN    0
 #define UP      1
 
+#define MAX(A, B) (A > B ? A : B)
+#define MIN(A, B) (A < B ? A : B)
+
 #endif
 

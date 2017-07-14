@@ -8,9 +8,6 @@
 #include "colcheck.h"
 #include "gamedata.h"
 
-#define MAX(A, B) (A > B ? A : B)
-#define MIN(A, B) (A < B ? A : B)
-
 static u8 __fastcall__ check_movement(u8 gamepad_state);
 static void __fastcall__ walk(u8 gamepad_state);
 static void __fastcall__ jump(u8 gamepad_state);
@@ -27,9 +24,9 @@ static void __fastcall__ check_object_collisions(void);
 #define PLAYER_STATE_HURT  3
 
 #define PLAYER_SPRITE_STAND 0
-#define PLAYER_SPRITE_CLIMB 1
-#define PLAYER_SPRITE_WALK  2
-#define PLAYER_SPRITE_HURT  1
+#define PLAYER_SPRITE_CLIMB 4
+#define PLAYER_SPRITE_WALK  8
+#define PLAYER_SPRITE_HURT  4
 
 u8 keys = 0;
 u8 current_level = 0;
@@ -126,7 +123,7 @@ static u8 __fastcall__ check_movement(u8 gamepad_state)
       objects.vspeed[O_PLAYER] = 0;
       objects.state[O_PLAYER] = PLAYER_STATE_CLIMB;
       objects.hdir[O_PLAYER] = UP;
-      objects.sprite_mirrored[O_PLAYER] = 0;
+      objects.sprite_attribute[O_PLAYER] &= ~ATTR_MIRRORED;
       objects.sprite_index[O_PLAYER] = PLAYER_SPRITE_CLIMB;
       return 1;
     }
@@ -136,13 +133,13 @@ static u8 __fastcall__ check_movement(u8 gamepad_state)
   {
     objects.hspeed[O_PLAYER] = fixed(1, 127);
     objects.hdir[O_PLAYER] = RIGHT;
-    objects.sprite_mirrored[O_PLAYER] = 0;
+    objects.sprite_attribute[O_PLAYER] &= ~ATTR_MIRRORED;
   }
   else if (gamepad_state & PAD_LEFT)
   {
     objects.hspeed[O_PLAYER] = fixed(1, 127);
     objects.hdir[O_PLAYER] = LEFT;
-    objects.sprite_mirrored[O_PLAYER] = 1;
+    objects.sprite_attribute[O_PLAYER] |= ATTR_MIRRORED;
   }
   else
   {
@@ -179,7 +176,10 @@ static void __fastcall__ climb(u8 gamepad_state)
     flip_counter++;
   }
 
-  objects.sprite_mirrored[O_PLAYER] = flip_counter & 8;
+  if (flip_counter & 8)
+    objects.sprite_attribute[O_PLAYER] |= ATTR_MIRRORED;
+  else
+    objects.sprite_attribute[O_PLAYER] &= ~ATTR_MIRRORED;
 
   if (objects.vspeed[O_PLAYER] > 0)
   {
@@ -402,6 +402,8 @@ static void __fastcall__ hurt_player(u8 hdir)
   objects.hspeed[O_PLAYER] = fixed(1, 127);
   objects.vdir[O_PLAYER] = UP;
   objects.hdir[O_PLAYER] = hdir;
+
+  play_sound(2, 0xAA);
 }
 
 static void __fastcall__ check_object_collisions(void)
@@ -413,6 +415,8 @@ static void __fastcall__ check_object_collisions(void)
     switch (objects.type[i])
     {
       case O_BAT:
+      case O_SKELETON:
+      case O_BONE:
         if (colcheck_objects(O_PLAYER, i))
         {
           hurt_player(objects.x[i] > objects.x[O_PLAYER]);

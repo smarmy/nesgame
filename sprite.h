@@ -13,6 +13,13 @@ typedef struct sprite_t
 
 #define SPRITE(X) (((sprite_t*)0x200) + X )
 
+#define ATTR_PAL_LO   1
+#define ATTR_PAL_HI   2
+#define ATTR_16x16    4   /* use one of the unused sprite attribute. */
+#define ATTR_UNUSED1  8
+#define ATTR_UNUSED2  16
+#define ATTR_PRIORITY 32
 #define ATTR_MIRRORED 64
+#define ATTR_V_MIRROR 128
 
 #endif
