@@ -16,7 +16,8 @@ typedef struct object_t
   fixed_t hspeed[MAX_OBJECTS];
   fixed_t vspeed[MAX_OBJECTS];
   u8 sprite_mirrored[MAX_OBJECTS];
-  u8 dir[MAX_OBJECTS];
+  u8 hdir[MAX_OBJECTS];
+  u8 vdir[MAX_OBJECTS];
   u8 state[MAX_OBJECTS];
   u8 sprite_index[MAX_OBJECTS];
   u8 type[MAX_OBJECTS];

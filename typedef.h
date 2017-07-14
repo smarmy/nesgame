@@ -8,8 +8,8 @@ typedef signed int i16;
 
 #define LEFT    64
 #define RIGHT   0
-#define DOWN    1
-#define UP      2
+#define DOWN    0
+#define UP      1
 
 #endif
 

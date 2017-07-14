@@ -99,11 +99,11 @@ static void __fastcall__ update_object(u8 index)
       else
         objects.sprite_index[index] = 3;
 
-      if (objects.dir[index] == RIGHT)
+      if (objects.hdir[index] == RIGHT)
       {
         if (colcheck_right(index))
         {
-          objects.dir[index] = LEFT;
+          objects.hdir[index] = LEFT;
           objects.sprite_mirrored[index] = 1;
         }
         else
@@ -115,7 +115,7 @@ static void __fastcall__ update_object(u8 index)
       {
         if (colcheck_left(index))
         {
-          objects.dir[index] = RIGHT;
+          objects.hdir[index] = RIGHT;
           objects.sprite_mirrored[index] = 0;
         }
         else
@@ -143,7 +143,8 @@ void __fastcall__ create_object(u8 type, u8 x, u8 y)
 {
   objects.x[num_objects] = fixed(x, 0);
   objects.y[num_objects] = fixed(y, 0);
-  objects.dir[num_objects] = 0;
+  objects.hdir[num_objects] = 0;
+  objects.vdir[num_objects] = 0;
   objects.hspeed[num_objects] = 0;
   objects.vspeed[num_objects] = 0;
   objects.sprite_index[num_objects] = 0;

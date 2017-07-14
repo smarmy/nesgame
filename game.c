@@ -11,18 +11,24 @@
 #define MAX(A, B) (A > B ? A : B)
 #define MIN(A, B) (A < B ? A : B)
 
-void __fastcall__ walk(u8 gamepad_state);
-void __fastcall__ climb(u8 gamepad_state);
+static u8 __fastcall__ check_movement(u8 gamepad_state);
+static void __fastcall__ walk(u8 gamepad_state);
+static void __fastcall__ jump(u8 gamepad_state);
+static void __fastcall__ climb(u8 gamepad_state);
+static void __fastcall__ hurt(void);
+static u8 __fastcall__ move_player_horiz(void);
+static u8 __fastcall__ move_player_vertical(void);
 
-#define STATE_WALK  0
-#define STATE_CLIMB 1
-#define STATE_JUMP  2
+#define PLAYER_STATE_WALK  0
+#define PLAYER_STATE_CLIMB 1
+#define PLAYER_STATE_JUMP  2
+#define PLAYER_STATE_HURT  3
 
 #define PLAYER_SPRITE_STAND 0
 #define PLAYER_SPRITE_CLIMB 1
 #define PLAYER_SPRITE_WALK  2
+#define PLAYER_SPRITE_HURT  1
 
-static const u8 gravity = 25;
 u8 keys = 0;
 u8 current_level = 0;
 
@@ -52,12 +58,17 @@ void main()
     /* Update player based on input. */
     switch (objects.state[O_PLAYER])
     {
-      case STATE_WALK:
-      case STATE_JUMP:
+      case PLAYER_STATE_WALK:
         walk(gamepad_state);
         break;
-      case STATE_CLIMB:
+      case PLAYER_STATE_JUMP:
+        jump(gamepad_state);
+        break;
+      case PLAYER_STATE_CLIMB:
         climb(gamepad_state);
+        break;
+      case PLAYER_STATE_HURT:
+        hurt();
         break;
     }
 
@@ -100,29 +111,66 @@ end_of_update:
   }
 }
 
-void __fastcall__ climb(u8 gamepad_state)
+static u8 __fastcall__ check_movement(u8 gamepad_state)
 {
-  static u16 tmp;
+  /* Check if there's a ladder here. */
+  if (gamepad_state & PAD_UP)
+  {
+    if (stairs_check(O_PLAYER))
+    {
+      objects.hspeed[O_PLAYER] = 0;
+      objects.vspeed[O_PLAYER] = 0;
+      objects.state[O_PLAYER] = PLAYER_STATE_CLIMB;
+      objects.hdir[O_PLAYER] = UP;
+      objects.sprite_mirrored[O_PLAYER] = 0;
+      objects.sprite_index[O_PLAYER] = PLAYER_SPRITE_CLIMB;
+      return 1;
+    }
+  }
+
+  if (gamepad_state & PAD_RIGHT)
+  {
+    objects.hspeed[O_PLAYER] = fixed(1, 127);
+    objects.hdir[O_PLAYER] = RIGHT;
+    objects.sprite_mirrored[O_PLAYER] = 0;
+  }
+  else if (gamepad_state & PAD_LEFT)
+  {
+    objects.hspeed[O_PLAYER] = fixed(1, 127);
+    objects.hdir[O_PLAYER] = LEFT;
+    objects.sprite_mirrored[O_PLAYER] = 1;
+  }
+  else
+  {
+    objects.hspeed[O_PLAYER] = 0;
+  }
+
+  return 0;
+}
+
+static void __fastcall__ climb(u8 gamepad_state)
+{
   static u8 flip_counter;
 
   if ((gamepad_state & PAD_A) || stairs_check(O_PLAYER) == 0)
   {
-    objects.state[O_PLAYER] = STATE_WALK;
+    objects.state[O_PLAYER] = PLAYER_STATE_WALK;
     objects.sprite_index[O_PLAYER] = PLAYER_SPRITE_STAND;
+    objects.vdir[O_PLAYER] = DOWN;
     return;
   }
 
   if (gamepad_state & PAD_UP)
   {
     objects.vspeed[O_PLAYER] = fixed(1, 127);
-    objects.dir[O_PLAYER] = UP;
+    objects.vdir[O_PLAYER] = UP;
 
     flip_counter++;
   }
   else if (gamepad_state & PAD_DOWN)
   {
     objects.vspeed[O_PLAYER] = fixed(1, 127);
-    objects.dir[O_PLAYER] = DOWN;
+    objects.vdir[O_PLAYER] = DOWN;
 
     flip_counter++;
   }
@@ -131,35 +179,10 @@ void __fastcall__ climb(u8 gamepad_state)
 
   if (objects.vspeed[O_PLAYER] > 0)
   {
-    if (objects.dir[O_PLAYER] == UP)
+    if (move_player_vertical() == 0 && objects.vdir[O_PLAYER] == DOWN)
     {
-      tmp = objects.y[O_PLAYER] - objects.vspeed[O_PLAYER];
-
-      while (objects.y[O_PLAYER] > tmp)
-      {
-        if (colcheck_up(O_PLAYER))
-        {
-          break;
-        }
-
-        objects.y[O_PLAYER] -= fixed(1, 0);
-      }
-    }
-    else
-    {
-      tmp = objects.y[O_PLAYER] + objects.vspeed[O_PLAYER];
-
-      while (objects.y[O_PLAYER] < tmp)
-      {
-        if (colcheck_down(O_PLAYER))
-        {
-          objects.state[O_PLAYER] = STATE_WALK;
-          objects.sprite_index[O_PLAYER] = PLAYER_SPRITE_STAND;
-          break;
-        }
-
-        objects.y[O_PLAYER] += fixed(1, 0);
-      }
+      objects.state[O_PLAYER] = PLAYER_STATE_WALK;
+      objects.sprite_index[O_PLAYER] = PLAYER_SPRITE_STAND;
     }
 
     objects.vspeed[O_PLAYER] = 0;
@@ -168,174 +191,52 @@ void __fastcall__ climb(u8 gamepad_state)
   if (gamepad_state & PAD_LEFT)
   {
     objects.hspeed[O_PLAYER] = fixed(1, 127);
-    objects.dir[O_PLAYER] = LEFT;
+    objects.hdir[O_PLAYER] = LEFT;
   }
   else if (gamepad_state & PAD_RIGHT)
   {
     objects.hspeed[O_PLAYER] = fixed(1, 127);
-    objects.dir[O_PLAYER] = RIGHT;
+    objects.hdir[O_PLAYER] = RIGHT;
   }
 
   if (objects.hspeed[O_PLAYER] > 0)
   {
-    if (objects.dir[O_PLAYER] == LEFT)
-    {
-      tmp = objects.x[O_PLAYER] - objects.hspeed[O_PLAYER];
-
-      while (objects.x[O_PLAYER] > tmp)
-      {
-        if (colcheck_left(O_PLAYER))
-        {
-          break;
-        }
-
-        objects.x[O_PLAYER] -= fixed(1, 0);
-      }
-    }
-    else
-    {
-      tmp = objects.x[O_PLAYER] + objects.hspeed[O_PLAYER];
-
-      while (objects.x[O_PLAYER] < tmp)
-      {
-        if (colcheck_right(O_PLAYER))
-        {
-          break;
-        }
-
-        objects.x[O_PLAYER] += fixed(1, 0);
-      }
-    }
-
+    move_player_horiz();
     objects.hspeed[O_PLAYER] = 0;
   }
 }
 
-void __fastcall__ walk(u8 gamepad_state)
+static void __fastcall__ walk(u8 gamepad_state)
 {
-  static u16 tmp;
   static u8 walk_counter = 0;
 
-  /* Check if there's a ladder here. */
-  if (gamepad_state & PAD_UP)
-  {
-    if (stairs_check(O_PLAYER))
-    {
-      objects.hspeed[O_PLAYER] = 0;
-      objects.vspeed[O_PLAYER] = 0;
-      objects.state[O_PLAYER] = STATE_CLIMB;
-      objects.dir[O_PLAYER] = UP;
-      objects.sprite_mirrored[O_PLAYER] = 0;
-      objects.sprite_index[O_PLAYER] = PLAYER_SPRITE_CLIMB;
-      return;
-    }
-  }
-
-  if (gamepad_state & PAD_RIGHT)
-  {
-    objects.hspeed[O_PLAYER] = fixed(1, 127);
-    objects.dir[O_PLAYER] = RIGHT;
-    objects.sprite_mirrored[O_PLAYER] = 0;
-  }
-  else if (gamepad_state & PAD_LEFT)
-  {
-    objects.hspeed[O_PLAYER] = fixed(1, 127);
-    objects.dir[O_PLAYER] = LEFT;
-    objects.sprite_mirrored[O_PLAYER] = 1;
-  }
-  else
-  {
-    objects.hspeed[O_PLAYER] = 0;
-  }
+  if (check_movement(gamepad_state))
+    return;
 
   if ((gamepad_state & PAD_A) && colcheck_down(O_PLAYER))
   {
-    objects.state[O_PLAYER] = STATE_JUMP;
+    objects.state[O_PLAYER] = PLAYER_STATE_JUMP;
     objects.vspeed[O_PLAYER] = fixed(2, 0);
+    objects.vdir[O_PLAYER] = UP;
+    return;
   }
 
-  if (objects.state[O_PLAYER] == STATE_WALK)
-  {
-    if (!colcheck_down(O_PLAYER))
-    {
-      objects.sprite_index[O_PLAYER] = PLAYER_SPRITE_WALK;
-      objects.vspeed[O_PLAYER] += gravity;
-      objects.vspeed[O_PLAYER] = MIN(fixed(2, 0), objects.vspeed[O_PLAYER]);
-
-      /* Update position. */
-      tmp = objects.y[O_PLAYER] + objects.vspeed[O_PLAYER];
-      while (objects.y[O_PLAYER] < tmp)
-      {
-        objects.y[O_PLAYER] += fixed(1, 0);
-
-        if (colcheck_down(O_PLAYER))
-        {
-          objects.vspeed[O_PLAYER] = 0;
-          break;
-        }
-      }
-    }
-    else
-    {
-      objects.vspeed[O_PLAYER] = 0;
-    }
-  }
-  else
+  if (!colcheck_down(O_PLAYER))
   {
     objects.sprite_index[O_PLAYER] = PLAYER_SPRITE_WALK;
-    objects.vspeed[O_PLAYER] -= gravity;
+    objects.vspeed[O_PLAYER] += GRAVITY;
+    objects.vspeed[O_PLAYER] = MIN(fixed(2, 0), objects.vspeed[O_PLAYER]);
+    objects.vdir[O_PLAYER] = DOWN;
 
-    tmp = objects.y[O_PLAYER] - objects.vspeed[O_PLAYER];
-    while (objects.y[O_PLAYER] > tmp)
-    {
-      if (colcheck_up(O_PLAYER))
-      {
-        objects.vspeed[O_PLAYER] = 0;
-        objects.state[O_PLAYER] = STATE_WALK;
-        break;
-      }
-
-      objects.y[O_PLAYER] -= fixed(1, 0);
-    }
-
-    if ((i16)objects.vspeed[O_PLAYER] <= 0)
-    {
-      objects.vspeed[O_PLAYER] = 0;
-      objects.state[O_PLAYER] = STATE_WALK;
-    }
-  }
-
-  /* Move player by speed. */
-  if (objects.dir[O_PLAYER] == LEFT)
-  {
-    /*objects.x[O_PLAYER] -= objects.hspeed[O_PLAYER];*/
-    tmp = objects.x[O_PLAYER] - objects.hspeed[O_PLAYER];
-    while (objects.x[O_PLAYER] > tmp)
-    {
-      if (colcheck_left(O_PLAYER))
-      {
-        objects.hspeed[O_PLAYER] = 0;
-        break;
-      }
-
-      objects.x[O_PLAYER] -= fixed(1, 0);
-    }
+    /* Update position. */
+    move_player_vertical();
   }
   else
   {
-    /*objects.x[O_PLAYER] += objects.hspeed[O_PLAYER];*/
-    tmp = objects.x[O_PLAYER] + objects.hspeed[O_PLAYER];
-    while (objects.x[O_PLAYER] < tmp)
-    {
-      if (colcheck_right(O_PLAYER))
-      {
-        objects.hspeed[O_PLAYER] = 0;
-        break;
-      }
-
-      objects.x[O_PLAYER] += fixed(1, 0);
-    }
+    objects.vspeed[O_PLAYER] = 0;
   }
+
+  move_player_horiz();
 
   if (objects.hspeed[O_PLAYER] > 0 && objects.vspeed[O_PLAYER] == 0)
   {
@@ -347,4 +248,117 @@ void __fastcall__ walk(u8 gamepad_state)
   {
     objects.sprite_index[O_PLAYER] = PLAYER_SPRITE_STAND;
   }
+}
+
+static void __fastcall__ jump(u8 gamepad_state)
+{
+  /* Gamepad checks. */
+  if (check_movement(gamepad_state))
+    return;
+
+  /* Physics. */
+  objects.sprite_index[O_PLAYER] = PLAYER_SPRITE_WALK;
+  objects.vspeed[O_PLAYER] -= GRAVITY;
+
+  if (move_player_vertical() == 0)
+  {
+    objects.state[O_PLAYER] = PLAYER_STATE_WALK;
+    objects.vdir[O_PLAYER] = DOWN;
+  }
+
+  if ((i16)objects.vspeed[O_PLAYER] <= 0)
+  {
+    objects.vspeed[O_PLAYER] = 0;
+    objects.state[O_PLAYER] = PLAYER_STATE_WALK;
+  }
+
+  move_player_horiz();
+}
+
+static void __fastcall__ hurt(void)
+{
+  switch (objects.vdir[O_PLAYER])
+  {
+    case UP:
+      break;
+    case DOWN:
+      break;
+  }
+
+  move_player_horiz();
+}
+
+/* Return 1 on collision. */
+static u8 __fastcall__ move_player_horiz(void)
+{
+  static u16 tmp;
+
+  /* Move player by speed. */
+  if (objects.hdir[O_PLAYER] == LEFT)
+  {
+    tmp = objects.x[O_PLAYER] - objects.hspeed[O_PLAYER];
+    while (objects.x[O_PLAYER] > tmp)
+    {
+      if (colcheck_left(O_PLAYER))
+      {
+        objects.hspeed[O_PLAYER] = 0;
+        return 0;
+      }
+
+      objects.x[O_PLAYER] -= fixed(1, 0);
+    }
+  }
+  else
+  {
+    tmp = objects.x[O_PLAYER] + objects.hspeed[O_PLAYER];
+    while (objects.x[O_PLAYER] < tmp)
+    {
+      if (colcheck_right(O_PLAYER))
+      {
+        objects.hspeed[O_PLAYER] = 0;
+        return 0;
+      }
+
+      objects.x[O_PLAYER] += fixed(1, 0);
+    }
+  }
+
+  return 1;
+}
+
+/* Return 1 on collision or speed underflow. */
+static u8 __fastcall__ move_player_vertical(void)
+{
+  static u16 tmp;
+
+  if (objects.vdir[O_PLAYER] == DOWN)
+  {
+    tmp = objects.y[O_PLAYER] + objects.vspeed[O_PLAYER];
+    while (objects.y[O_PLAYER] < tmp)
+    {
+      objects.y[O_PLAYER] += fixed(1, 0);
+
+      if (colcheck_down(O_PLAYER))
+      {
+        objects.vspeed[O_PLAYER] = 0;
+        return 0;
+      }
+    }
+  }
+  else
+  {
+    tmp = objects.y[O_PLAYER] - objects.vspeed[O_PLAYER];
+    while (objects.y[O_PLAYER] > tmp)
+    {
+      if (colcheck_up(O_PLAYER))
+      {
+        objects.vspeed[O_PLAYER] = 0;
+        return 0;
+      }
+
+      objects.y[O_PLAYER] -= fixed(1, 0);
+    }
+  }
+
+  return 1;
 }
