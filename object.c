@@ -1,6 +1,7 @@
 #include "asm.h"
 #include "sprite.h"
 #include "object.h"
+#include "level.h"
 #include "gamedata.h"
 #include "colcheck.h"
 
@@ -19,6 +20,12 @@ static void __fastcall__ update_sprite(u8 index)
   sprite_index = objects.sprite_index[index];
   x = fix2i(objects.x[index]);
   y = fix2i(objects.y[index]);
+
+  if (objects.sprite_attribute[index] & ATTR_HIDDEN)
+  {
+    x = 0;
+    y = 0;
+  }
 
   if ((objects.sprite_attribute[index] & ATTR_MIRRORED) == 0)
   {
@@ -205,6 +212,52 @@ static void __fastcall__ update_bone(u8 index)
   }
 }
 
+static void __fastcall__ update_flame(u8 index)
+{
+  static u8 tmp;
+
+  switch (objects.state[index])
+  {
+    case 0:
+      objects.counter[index]++;
+
+      if (objects.counter[index] == 64)
+      {
+        objects.state[index] = 1;
+        objects.vspeed[index] = fixed(4, 0);
+        objects.vdir[index] = UP;
+        objects.sprite_attribute[index] &= ~ATTR_HIDDEN;
+        objects.counter[index] = 0;
+      }
+      return;
+  }
+
+  if (objects.vdir[index] == UP)
+  {
+    objects.vspeed[index] -= GRAVITY;
+    objects.y[index] -= objects.vspeed[index];
+
+    if ((i16)objects.vspeed[index] <= 0)
+    {
+      objects.vspeed[index] = 0;
+      objects.vdir[index] = DOWN;
+    }
+  }
+  else
+  {
+    objects.vspeed[index] += GRAVITY;
+    objects.vspeed[index] = MIN(fixed(2, 0), objects.vspeed[index]);
+    objects.y[index] += objects.vspeed[index];
+
+    tmp = tile_check(index, TILE_LAVA_BODY);
+    if (tmp == 0) return;
+
+    objects.y[index] = fixed((tmp >> 4) << 4, 0);
+    objects.state[index] = 0;
+    objects.sprite_attribute[index] |= ATTR_HIDDEN;
+  }
+}
+
 static void __fastcall__ update_object(u8 index)
 {
   switch (objects.type[index])
@@ -219,6 +272,9 @@ static void __fastcall__ update_object(u8 index)
       break;
     case O_BONE:
       update_bone(index);
+      break;
+    case O_FLAME:
+      update_flame(index);
       break;
   }
 }
@@ -297,6 +353,11 @@ void __fastcall__ create_object(u8 type, u8 x, u8 y)
     case O_BONE:
       objects.sprite_index[num_objects] = 28;
       objects.sprite_attribute[num_objects] &= ~ATTR_16x16;
+      break;
+    case O_FLAME:
+      objects.sprite_index[num_objects] = 29;
+      objects.vdir[num_objects] = UP;
+      objects.sprite_attribute[num_objects] |= ATTR_HIDDEN;
       break;
   }
 

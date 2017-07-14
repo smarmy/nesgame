@@ -4,12 +4,13 @@
 #include "fixed.h"
 #include "typedef.h"
 
-#define MAX_OBJECTS 10
+#define MAX_OBJECTS 30
 
 #define O_PLAYER    0
 #define O_BAT       1
 #define O_SKELETON  2
 #define O_BONE      3
+#define O_FLAME     4
 #define O_NOTHING   255
 
 typedef struct object_t

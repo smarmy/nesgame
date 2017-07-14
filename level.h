@@ -11,6 +11,8 @@
 #define TILE_KEY    0x3
 #define TILE_LOCK   0x4
 #define TILE_DOOR   0x5
+#define TILE_LAVA_SURFACE   0x6
+#define TILE_LAVA_BODY      0x7
 
 /**
  * Buffer in RAM where the levels are stored.
