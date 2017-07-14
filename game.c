@@ -18,6 +18,8 @@ static void __fastcall__ climb(u8 gamepad_state);
 static void __fastcall__ hurt(void);
 static u8 __fastcall__ move_player_horiz(void);
 static u8 __fastcall__ move_player_vertical(void);
+static void __fastcall__ hurt_player(u8 hdir);
+static void __fastcall__ check_object_collisions(void);
 
 #define PLAYER_STATE_WALK  0
 #define PLAYER_STATE_CLIMB 1
@@ -71,6 +73,8 @@ void main()
         hurt();
         break;
     }
+
+    check_object_collisions();
 
     /* Check collisions with special tiles. */
     tile_check_index = tile_check(O_PLAYER, TILE_KEY);
@@ -277,18 +281,43 @@ static void __fastcall__ jump(u8 gamepad_state)
 
 static void __fastcall__ hurt(void)
 {
-  switch (objects.vdir[O_PLAYER])
+  objects.hspeed[O_PLAYER] = fixed(1, 127);
+
+  if (objects.vdir[O_PLAYER] == UP)
   {
-    case UP:
-      break;
-    case DOWN:
-      break;
+    objects.vspeed[O_PLAYER] -= GRAVITY;
+    objects.vspeed[O_PLAYER] -= GRAVITY;
+    objects.vspeed[O_PLAYER] -= GRAVITY;
+
+    if ((i16)objects.vspeed[O_PLAYER] <= 0)
+    {
+      objects.vspeed[O_PLAYER] = 0;
+      objects.vdir[O_PLAYER] = DOWN;
+    }
+  }
+  else
+  {
+    objects.vspeed[O_PLAYER] += GRAVITY;
+
+    objects.vspeed[O_PLAYER] = MIN(fixed(2, 0), objects.vspeed[O_PLAYER]);
+  }
+
+  if (move_player_vertical() == 0)
+  {
+    if (objects.vdir[O_PLAYER] == UP)
+    {
+      objects.vdir[O_PLAYER] = DOWN;
+    }
+    else
+    {
+      objects.state[O_PLAYER] = PLAYER_STATE_WALK;
+    }
   }
 
   move_player_horiz();
 }
 
-/* Return 1 on collision. */
+/* Return 0 on collision. */
 static u8 __fastcall__ move_player_horiz(void)
 {
   static u16 tmp;
@@ -326,7 +355,7 @@ static u8 __fastcall__ move_player_horiz(void)
   return 1;
 }
 
-/* Return 1 on collision or speed underflow. */
+/* Return 0 on collision. */
 static u8 __fastcall__ move_player_vertical(void)
 {
   static u16 tmp;
@@ -361,4 +390,34 @@ static u8 __fastcall__ move_player_vertical(void)
   }
 
   return 1;
+}
+
+static void __fastcall__ hurt_player(u8 hdir)
+{
+  if (objects.state[O_PLAYER] == PLAYER_STATE_HURT)
+    return;
+
+  objects.state[O_PLAYER] = PLAYER_STATE_HURT;
+  objects.vspeed[O_PLAYER] = fixed(3, 0);
+  objects.hspeed[O_PLAYER] = fixed(1, 127);
+  objects.vdir[O_PLAYER] = UP;
+  objects.hdir[O_PLAYER] = hdir;
+}
+
+static void __fastcall__ check_object_collisions(void)
+{
+  static u8 i;
+
+  for (i = 1; i < num_objects; i++)
+  {
+    switch (objects.type[i])
+    {
+      case O_BAT:
+        if (colcheck_objects(O_PLAYER, i))
+        {
+          hurt_player(objects.x[i] > objects.x[O_PLAYER]);
+        }
+        break;
+    }
+  }
 }

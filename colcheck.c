@@ -95,3 +95,21 @@ u8 __fastcall__ tile_check(u8 obj_index, u8 tile)
 
   return 0;
 }
+
+u8 __fastcall__ colcheck_objects(u8 obj_index_1, u8 obj_index_2)
+{
+  static u8 o1x, o1y;
+  static u8 o2x, o2y;
+
+  o1x = fix2i(objects.x[obj_index_1]) + 6;
+  o1y = fix2i(objects.y[obj_index_1]) + 2;
+  o2x = fix2i(objects.x[obj_index_2]) + 6;
+  o2y = fix2i(objects.y[obj_index_2]) + 2;
+
+  if ((o1x + 4) < o2x) return 0;
+  if ((o1y + 13) < o2y) return 0;
+  if ((o2x + 4) < o1x) return 0;
+  if ((o2y + 13) < o1y) return 0;
+
+  return 1;
+}
