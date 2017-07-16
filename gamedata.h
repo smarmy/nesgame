@@ -3,6 +3,7 @@
 
 extern u8 keys;
 extern u8 current_level;
+extern u8 double_jump;
 
 #define LEVELS_PER_ROW  6
 

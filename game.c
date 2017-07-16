@@ -29,8 +29,12 @@ static u8 __fastcall__ transition(void);
 #define PLAYER_SPRITE_WALK  8
 #define PLAYER_SPRITE_HURT  4
 
+static u8 jump_button_pressed = 0;
+static u8 jumps = 1;
+
 u8 keys = 0;
 u8 current_level = 0;
+u8 max_jumps = 1;
 
 void main()
 {
@@ -153,6 +157,41 @@ static u8 __fastcall__ check_movement(u8 gamepad_state)
     objects.hspeed[O_PLAYER] = 0;
   }
 
+  /* Check jumping. */
+  if ((gamepad_state & PAD_A))
+  {
+    static u8 allow_jump;
+    static u8 collision;
+
+    collision = colcheck_down(O_PLAYER);
+
+    if (jumps == 0 && collision == 0)
+      allow_jump = 0;
+    else if (collision == 0 && max_jumps == 2 && jumps > 0)
+      allow_jump = 1;
+    else if (collision == 1)
+      allow_jump = 1;
+
+    if (jump_button_pressed == 0 && allow_jump == 1)
+    {
+      jump_button_pressed = 1;
+      jumps--;
+
+      objects.state[O_PLAYER] = PLAYER_STATE_JUMP;
+      objects.vspeed[O_PLAYER] = fixed(2, 0);
+      objects.vdir[O_PLAYER] = UP;
+      return 1;
+    }
+    else if (jump_button_pressed == 0)
+    {
+      jump_button_pressed = 1;
+    }
+  }
+  else
+  {
+    jump_button_pressed = 0;
+  }
+
   return 0;
 }
 
@@ -224,16 +263,11 @@ static void __fastcall__ walk(u8 gamepad_state)
   if (check_movement(gamepad_state))
     return;
 
-  if ((gamepad_state & PAD_A) && colcheck_down(O_PLAYER))
-  {
-    objects.state[O_PLAYER] = PLAYER_STATE_JUMP;
-    objects.vspeed[O_PLAYER] = fixed(2, 0);
-    objects.vdir[O_PLAYER] = UP;
-    return;
-  }
-
   if (!colcheck_down(O_PLAYER))
   {
+    if (jumps > 1)
+      jumps--;
+
     objects.sprite_index[O_PLAYER] = PLAYER_SPRITE_WALK;
     objects.vspeed[O_PLAYER] += GRAVITY;
     objects.vspeed[O_PLAYER] = MIN(fixed(2, 0), objects.vspeed[O_PLAYER]);
@@ -245,6 +279,7 @@ static void __fastcall__ walk(u8 gamepad_state)
   else
   {
     objects.vspeed[O_PLAYER] = 0;
+    jumps = max_jumps;
   }
 
   move_player_horiz();
@@ -457,6 +492,9 @@ static u8 __fastcall__ transition(void)
   }
   else if (y < 16)
   {
+    if (current_level < 6)
+      return 1;
+
     current_level -= LEVELS_PER_ROW;
     objects.y[O_PLAYER] = fixed(240, 0);
   }
