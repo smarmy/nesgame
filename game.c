@@ -171,6 +171,8 @@ static u8 __fastcall__ check_movement(u8 gamepad_state)
       allow_jump = 1;
     else if (collision == 1)
       allow_jump = 1;
+    else
+      allow_jump = 0;
 
     if (jump_button_pressed == 0 && allow_jump == 1)
     {
