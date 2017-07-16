@@ -22,6 +22,10 @@ typedef struct object_t
   u8 sprite_attribute[MAX_OBJECTS];
   u8 hdir[MAX_OBJECTS];
   u8 vdir[MAX_OBJECTS];
+  u8 bbox_x1[MAX_OBJECTS];
+  u8 bbox_y1[MAX_OBJECTS];
+  u8 bbox_x2[MAX_OBJECTS];
+  u8 bbox_y2[MAX_OBJECTS];
   u8 state[MAX_OBJECTS];
   u8 counter[MAX_OBJECTS];
   u8 sprite_index[MAX_OBJECTS];

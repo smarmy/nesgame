@@ -480,7 +480,7 @@ static u8 __fastcall__ transition(void)
     current_level++;
     objects.x[O_PLAYER] = fixed(16, 0);
   }
-  else if (x < 16)
+  else if (x < 8)
   {
     current_level--;
     objects.x[O_PLAYER] = fixed(240, 0);

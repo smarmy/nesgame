@@ -339,25 +339,36 @@ void __fastcall__ create_object(u8 type, u8 x, u8 y)
   objects.counter[num_objects] = 0;
   objects.type[num_objects] = type;
 
+#define BBOX(x1, x2, y1, y2) \
+  objects.bbox_x1[num_objects] = x1; \
+  objects.bbox_x2[num_objects] = x2; \
+  objects.bbox_y1[num_objects] = y1; \
+  objects.bbox_y2[num_objects] = y2
+
   switch (type)
   {
     case O_PLAYER:
+      BBOX(4, 12, 0, 16);
       break;
     case O_BAT:
       objects.hspeed[num_objects] = fixed(1, 127);
       objects.sprite_index[num_objects] = 12;
+      BBOX(3, 14, 2, 12);
       break;
     case O_SKELETON:
       objects.sprite_index[num_objects] = 20;
+      BBOX(6, 10, 0, 16);
       break;
     case O_BONE:
       objects.sprite_index[num_objects] = 28;
       objects.sprite_attribute[num_objects] &= ~ATTR_16x16;
+      BBOX(0, 0, 8, 8);
       break;
     case O_FLAME:
       objects.sprite_index[num_objects] = 29;
       objects.vdir[num_objects] = UP;
       objects.sprite_attribute[num_objects] |= ATTR_HIDDEN;
+      BBOX(2, 14, 2, 14);
       break;
   }
 
