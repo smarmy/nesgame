@@ -9,6 +9,7 @@ all:
 	$(cc65) $(CFLAGS) level.c
 	$(cc65) $(CFLAGS) object.c
 	$(cc65) $(CFLAGS) colcheck.c
+	$(cc65) $(CFLAGS) sprite.c
 	$(ca65) crt0.asm -I ../asminc/
 	$(ca65) asm.asm -I ../asminc/
 	$(ca65) levels.asm
@@ -16,4 +17,5 @@ all:
 	$(ca65) level.s -I ../asminc/
 	$(ca65) object.s -I ../asminc/
 	$(ca65) colcheck.s -I ../asminc/
-	$(ld65) -C nes.cfg -o game.nes game.o level.o object.o colcheck.o crt0.o asm.o levels.o -L ../lib/ nes.lib
+	$(ca65) sprite.s -I ../asminc/
+	$(ld65) -C nes.cfg -o game.nes game.o level.o object.o colcheck.o sprite.o crt0.o asm.o levels.o -L ../lib/ nes.lib

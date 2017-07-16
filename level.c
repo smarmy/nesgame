@@ -1,5 +1,6 @@
 #include "ppu.h"
 #include "object.h"
+#include "sprite.h"
 #include "level.h"
 
 /**
@@ -142,6 +143,8 @@ void __fastcall__ load_level(u8 number)
   static u8 num_levels;
   static u8 loop;
   static const u8* ptr;
+
+  clear_sprites();
 
   ptr = LEVELS;
   num_levels = *(ptr++);
