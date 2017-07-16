@@ -232,7 +232,7 @@ static void __fastcall__ update_bone(u8 index)
 
 static void __fastcall__ update_flame(u8 index)
 {
-  static u8 tmp;
+  static fixed_t vspeed;
 
   switch (objects.state[index])
   {
@@ -245,34 +245,42 @@ static void __fastcall__ update_flame(u8 index)
         objects.vspeed[index] = fixed(4, 0);
         objects.vdir[index] = UP;
         objects.sprite_attribute[index] &= ~ATTR_HIDDEN;
-        objects.counter[index] = 0;
+        objects.counter[index] = fix2i(objects.y[index]);
       }
       return;
   }
 
   if (objects.vdir[index] == UP)
   {
-    objects.vspeed[index] -= GRAVITY;
-    objects.y[index] -= objects.vspeed[index];
+    vspeed = objects.vspeed[index];
 
-    if ((i16)objects.vspeed[index] <= 0)
+    vspeed -= GRAVITY;
+    objects.y[index] -= vspeed;
+
+    if ((i16)vspeed <= 0)
     {
-      objects.vspeed[index] = 0;
+      vspeed = 0;
       objects.vdir[index] = DOWN;
     }
+
+    objects.vspeed[index] = vspeed;
   }
   else
   {
-    objects.vspeed[index] += GRAVITY;
-    objects.vspeed[index] = MIN(fixed(2, 0), objects.vspeed[index]);
-    objects.y[index] += objects.vspeed[index];
+    vspeed = objects.vspeed[index];
 
-    tmp = tile_check(index, TILE_LAVA_BODY);
-    if (tmp == 0) return;
+    vspeed += GRAVITY;
+    vspeed = MIN(fixed(2, 0), vspeed);
+    objects.y[index] += vspeed;
 
-    objects.y[index] = fixed((tmp >> 4) << 4, 0);
-    objects.state[index] = 0;
-    objects.sprite_attribute[index] |= ATTR_HIDDEN;
+    objects.vspeed[index] = vspeed;
+
+    if (fix2i(objects.y[index]) >= objects.counter[index])
+    {
+      objects.y[index] = fixed(objects.counter[index], 0);
+      objects.state[index] = 0;
+      objects.sprite_attribute[index] |= ATTR_HIDDEN;
+    }
   }
 }
 
