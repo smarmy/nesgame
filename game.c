@@ -13,16 +13,19 @@ static void __fastcall__ walk(u8 gamepad_state);
 static void __fastcall__ jump(u8 gamepad_state);
 static void __fastcall__ climb(u8 gamepad_state);
 static void __fastcall__ hurt(void);
+static void __fastcall__ dead(void);
 static u8 __fastcall__ move_player_horiz(void);
 static u8 __fastcall__ move_player_vertical(void);
 static void __fastcall__ hurt_player(u8 hdir);
 static void __fastcall__ check_object_collisions(void);
 static u8 __fastcall__ transition(void);
+static void __fastcall__ display_life(void);
 
 #define PLAYER_STATE_WALK  0
 #define PLAYER_STATE_CLIMB 1
 #define PLAYER_STATE_JUMP  2
 #define PLAYER_STATE_HURT  3
+#define PLAYER_STATE_DEAD  4
 
 #define PLAYER_SPRITE_STAND 0
 #define PLAYER_SPRITE_CLIMB 4
@@ -35,6 +38,31 @@ static u8 jumps = 1;
 u8 keys = 0;
 u8 current_level = 0;
 u8 max_jumps = 1;
+u8 player_life = 3;
+
+static void reset()
+{
+  keys = 0;
+  current_level = 0;
+  max_jumps = 1;
+  player_life = 3;
+  num_objects = 0;
+
+  /* Turn off PPU. */
+  PPUCTRL = 0;
+  PPUMASK = 0;
+
+  create_object(O_PLAYER, 80, 176);
+  load_level(current_level);
+
+  /* Reset scroll. */
+  PPUSCROLL = 0;
+  PPUSCROLL = 0;
+
+  /* Turn on PPU. */
+  PPUCTRL = 0x88;
+  PPUMASK = 0x1E;
+}
 
 void main()
 {
@@ -75,6 +103,9 @@ void main()
       case PLAYER_STATE_HURT:
         hurt();
         break;
+      case PLAYER_STATE_DEAD:
+        dead();
+        goto end_of_update;
     }
 
     if (transition() == 0)
@@ -118,6 +149,7 @@ void main()
     }
 
 end_of_update:
+    display_life();
     update_objects();
     wait_vblank();
   }
@@ -354,11 +386,30 @@ static void __fastcall__ hurt(void)
     }
     else
     {
-      objects.state[O_PLAYER] = PLAYER_STATE_WALK;
+      if (player_life > 0)
+      {
+        objects.state[O_PLAYER] = PLAYER_STATE_WALK;
+      }
+      else
+      {
+        objects.state[O_PLAYER] = PLAYER_STATE_DEAD;
+        objects.sprite_index[O_PLAYER] = 34;
+        objects.counter[O_PLAYER] = 64;
+      }
     }
   }
 
   move_player_horiz();
+}
+
+static void __fastcall__ dead(void)
+{
+  objects.counter[O_PLAYER]--;
+  if (objects.counter[O_PLAYER] == 0)
+  {
+    /* TODO: reset to checkpoint, when that is implemeted. */
+    reset();
+  }
 }
 
 /* Return 0 on collision. */
@@ -447,6 +498,8 @@ static void __fastcall__ hurt_player(u8 hdir)
   objects.vdir[O_PLAYER] = UP;
   objects.hdir[O_PLAYER] = hdir;
 
+  player_life--;
+
   play_sound(2, 0xAA);
 }
 
@@ -520,4 +573,28 @@ static u8 __fastcall__ transition(void)
   PPUMASK = 0x1E;
 
   return 0;
+}
+
+static void __fastcall__ display_life(void)
+{
+  static u8 i;
+  static const u8 life_first_sprite = 0x35;
+  static sprite_t* sprite;
+
+  for (i = 0; i < MAX_LIFE; i++)
+  {
+    sprite = SPRITE(life_first_sprite + i);
+    sprite->attributes = 0;
+    sprite->index = 33;
+
+    if (i < player_life)
+    {
+      sprite->x = i << 3;
+      sprite->y = 8;
+    }
+    else
+    {
+      sprite->y = 0;
+    }
+  }
 }
