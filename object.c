@@ -23,8 +23,26 @@ static void __fastcall__ update_sprite(u8 index)
 
   if (objects.sprite_attribute[index] & ATTR_HIDDEN)
   {
-    x = 0;
-    y = 0;
+    sprite = SPRITE(spritenum);
+    sprite->y = 0;
+    spritenum++;
+
+    if ((objects.sprite_attribute[index] & ATTR_16x16) == 0)
+      return;
+
+    sprite = SPRITE(spritenum);
+    sprite->y = 0;
+    spritenum++;
+
+    sprite = SPRITE(spritenum);
+    sprite->y = 0;
+    spritenum++;
+
+    sprite = SPRITE(spritenum);
+    sprite->y = 0;
+    spritenum++;
+
+    return;
   }
 
   if ((objects.sprite_attribute[index] & ATTR_MIRRORED) == 0)
