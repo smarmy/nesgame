@@ -39,6 +39,14 @@ u8 __fastcall__ colcheck_down(u8 obj_index)
   if (is_solid(tile_index_1) == 0) return 1;
   if (is_solid(tile_index_2) == 0) return 1;
 
+  if (obj_index == O_PLAYER)
+  {
+    if (tilemap[tile_index_1] == TILE_SPIKES) { hurt_player(objects.hdir[O_PLAYER]); return 0; }
+    if (tilemap[tile_index_2] == TILE_SPIKES) { hurt_player(objects.hdir[O_PLAYER]); return 0; }
+    if (tilemap[tile_index_1] == TILE_LAVA_SURFACE) { kill_player(); return 0; }
+    if (tilemap[tile_index_2] == TILE_LAVA_SURFACE) { kill_player(); return 0; }
+  }
+
   return 0;
 }
 

@@ -16,7 +16,6 @@ static void __fastcall__ hurt(void);
 static void __fastcall__ dead(void);
 static u8 __fastcall__ move_player_horiz(void);
 static u8 __fastcall__ move_player_vertical(void);
-static void __fastcall__ hurt_player(u8 hdir);
 static void __fastcall__ check_object_collisions(void);
 static u8 __fastcall__ transition(void);
 static void __fastcall__ display_life(void);
@@ -392,9 +391,7 @@ static void __fastcall__ hurt(void)
       }
       else
       {
-        objects.state[O_PLAYER] = PLAYER_STATE_DEAD;
-        objects.sprite_index[O_PLAYER] = 34;
-        objects.counter[O_PLAYER] = 64;
+        kill_player();
       }
     }
   }
@@ -487,7 +484,7 @@ static u8 __fastcall__ move_player_vertical(void)
   return 1;
 }
 
-static void __fastcall__ hurt_player(u8 hdir)
+void __fastcall__ hurt_player(u8 hdir)
 {
   if (objects.state[O_PLAYER] == PLAYER_STATE_HURT)
     return;
@@ -503,6 +500,14 @@ static void __fastcall__ hurt_player(u8 hdir)
   play_sound(2, 0xAA);
 }
 
+void __fastcall__ kill_player(void)
+{
+  objects.state[O_PLAYER] = PLAYER_STATE_DEAD;
+  objects.sprite_index[O_PLAYER] = 34;
+  objects.counter[O_PLAYER] = 64;
+  player_life = 0;
+}
+
 static void __fastcall__ check_object_collisions(void)
 {
   static u8 i;
@@ -514,6 +519,7 @@ static void __fastcall__ check_object_collisions(void)
       case O_BAT:
       case O_SKELETON:
       case O_BONE:
+      case O_FLAME:
         if (colcheck_objects(O_PLAYER, i))
         {
           hurt_player(objects.x[i] > objects.x[O_PLAYER]);

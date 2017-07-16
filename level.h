@@ -21,6 +21,7 @@
 #define TILE_PILLAR_TOP   0xD
 #define TILE_PILLAR_MID   0xE
 #define TILE_PILLAR_BOT   0xF
+#define TILE_SPIKES 0x10
 
 /**
  * Buffer in RAM where the levels are stored.
