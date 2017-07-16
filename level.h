@@ -13,6 +13,14 @@
 #define TILE_DOOR   0x5
 #define TILE_LAVA_SURFACE   0x6
 #define TILE_LAVA_BODY      0x7
+#define TILE_DIRT_SURFACE   0x8
+#define TILE_DIRT_BODY      0x9
+#define TILE_BUSH   0xA
+#define TILE_CLOUD  0xB
+#define TILE_BRIDGE 0xC
+#define TILE_PILLAR_TOP   0xD
+#define TILE_PILLAR_MID   0xE
+#define TILE_PILLAR_BOT   0xF
 
 /**
  * Buffer in RAM where the levels are stored.

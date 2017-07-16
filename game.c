@@ -17,6 +17,7 @@ static u8 __fastcall__ move_player_horiz(void);
 static u8 __fastcall__ move_player_vertical(void);
 static void __fastcall__ hurt_player(u8 hdir);
 static void __fastcall__ check_object_collisions(void);
+static u8 __fastcall__ transition(void);
 
 #define PLAYER_STATE_WALK  0
 #define PLAYER_STATE_CLIMB 1
@@ -40,6 +41,7 @@ void main()
   PPUCTRL = 0;
   PPUMASK = 0;
 
+  create_object(O_PLAYER, 80, 176);
   load_level(current_level);
 
   /* Reset scroll. */
@@ -69,6 +71,11 @@ void main()
       case PLAYER_STATE_HURT:
         hurt();
         break;
+    }
+
+    if (transition() == 0)
+    {
+      goto end_of_update;
     }
 
     check_object_collisions();
@@ -424,4 +431,53 @@ static void __fastcall__ check_object_collisions(void)
         break;
     }
   }
+}
+
+static u8 __fastcall__ transition(void)
+{
+  static u8 x, y;
+
+  x = fix2i(objects.x[O_PLAYER]);
+  y = fix2i(objects.y[O_PLAYER]);
+
+  if (x > 240)
+  {
+    current_level++;
+    objects.x[O_PLAYER] = fixed(16, 0);
+  }
+  else if (x < 16)
+  {
+    current_level--;
+    objects.x[O_PLAYER] = fixed(240, 0);
+  }
+  else if (y > 240)
+  {
+    current_level += LEVELS_PER_ROW;
+    objects.y[O_PLAYER] = fixed(16, 0);
+  }
+  else if (y < 16)
+  {
+    current_level -= LEVELS_PER_ROW;
+    objects.y[O_PLAYER] = fixed(240, 0);
+  }
+  else
+  {
+    return 1;
+  }
+
+  /* Turn off PPU. */
+  PPUCTRL = 0;
+  PPUMASK = 0;
+
+  load_level(current_level);
+
+  /* Reset scroll. */
+  PPUSCROLL = 0;
+  PPUSCROLL = 0;
+
+  /* Turn on PPU. */
+  PPUCTRL = 0x88;
+  PPUMASK = 0x1E;
+
+  return 0;
 }

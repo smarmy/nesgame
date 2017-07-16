@@ -115,7 +115,7 @@ static void __fastcall__ update_bat(u8 index)
 
   if (objects.hdir[index] == RIGHT)
   {
-    if (colcheck_right(index))
+    if (colcheck_right(index) || fix2i(objects.x[index]) > 240)
     {
       objects.hdir[index] = LEFT;
       objects.sprite_attribute[index] |= ATTR_MIRRORED;
@@ -127,7 +127,7 @@ static void __fastcall__ update_bat(u8 index)
   }
   else
   {
-    if (colcheck_left(index))
+    if (colcheck_left(index) || fix2i(objects.x[index]) < 16)
     {
       objects.hdir[index] = RIGHT;
       objects.sprite_attribute[index] &= ~ATTR_MIRRORED;
