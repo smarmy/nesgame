@@ -383,17 +383,17 @@ void __fastcall__ update_objects(void)
     {
       for (j = index; j < num_objects - 1; j++)
       {
-        objects.x[index] = objects.x[index + 1];
-        objects.y[index] = objects.y[index + 1];
-        objects.hspeed[index] = objects.hspeed[index + 1];
-        objects.vspeed[index] = objects.vspeed[index + 1];
-        objects.sprite_attribute[index] = objects.sprite_attribute[index + 1];
-        objects.hdir[index] = objects.hdir[index + 1];
-        objects.vdir[index] = objects.vdir[index + 1];
-        objects.state[index] = objects.state[index + 1];
-        objects.counter[index] = objects.counter[index + 1];
-        objects.sprite_index[index] = objects.sprite_index[index + 1];
-        objects.type[index] = objects.type[index + 1];
+        objects.x[j] = objects.x[j + 1];
+        objects.y[j] = objects.y[j + 1];
+        objects.hspeed[j] = objects.hspeed[j + 1];
+        objects.vspeed[j] = objects.vspeed[j + 1];
+        objects.sprite_attribute[j] = objects.sprite_attribute[j + 1];
+        objects.hdir[j] = objects.hdir[j + 1];
+        objects.vdir[j] = objects.vdir[j + 1];
+        objects.state[j] = objects.state[j + 1];
+        objects.counter[j] = objects.counter[j + 1];
+        objects.sprite_index[j] = objects.sprite_index[j + 1];
+        objects.type[j] = objects.type[j + 1];
       }
 
       num_objects--;
