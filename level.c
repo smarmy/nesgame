@@ -97,8 +97,8 @@ static void __fastcall__ load_tilemap(const u8* lvlptr)
     if (otype == O_PLAYER)
     {
       /* Always write player info to first object. */
-      objects.x[O_PLAYER] = fixed(x, 0);
-      objects.y[O_PLAYER] = fixed(y, 0);
+      objects_x[O_PLAYER] = fixed(x, 0);
+      objects_y[O_PLAYER] = fixed(y, 0);
     }
     else
     {

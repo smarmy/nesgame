@@ -17,28 +17,24 @@
 #define O_BULLET    5
 #define O_NOTHING   255
 
-typedef struct object_t
-{
-  fixed_t x[MAX_OBJECTS];
-  fixed_t y[MAX_OBJECTS];
-  fixed_t hspeed[MAX_OBJECTS];
-  fixed_t vspeed[MAX_OBJECTS];
-  u8 sprite_attribute[MAX_OBJECTS];
-  u8 hdir[MAX_OBJECTS];
-  u8 vdir[MAX_OBJECTS];
-  u8 bbox_x1[MAX_OBJECTS];
-  u8 bbox_y1[MAX_OBJECTS];
-  u8 bbox_x2[MAX_OBJECTS];
-  u8 bbox_y2[MAX_OBJECTS];
-  u8 life[MAX_OBJECTS];
-  u8 state[MAX_OBJECTS];
-  u8 counter[MAX_OBJECTS];
-  u8 sprite_index[MAX_OBJECTS];
-  u8 type[MAX_OBJECTS];
-} object_t;
+extern fixed_t objects_x[MAX_OBJECTS];
+extern fixed_t objects_y[MAX_OBJECTS];
+extern fixed_t objects_hspeed[MAX_OBJECTS];
+extern fixed_t objects_vspeed[MAX_OBJECTS];
+extern u8 objects_sprite_attribute[MAX_OBJECTS];
+extern u8 objects_hdir[MAX_OBJECTS];
+extern u8 objects_vdir[MAX_OBJECTS];
+extern u8 objects_bbox_x1[MAX_OBJECTS];
+extern u8 objects_bbox_y1[MAX_OBJECTS];
+extern u8 objects_bbox_x2[MAX_OBJECTS];
+extern u8 objects_bbox_y2[MAX_OBJECTS];
+extern u8 objects_life[MAX_OBJECTS];
+extern u8 objects_state[MAX_OBJECTS];
+extern u8 objects_counter[MAX_OBJECTS];
+extern u8 objects_sprite_index[MAX_OBJECTS];
+extern u8 objects_type[MAX_OBJECTS];
 
 extern u8 num_objects;
-extern object_t objects;
 
 void __fastcall__ update_objects(void);
 void __fastcall__ create_object(u8 type, u8 x, u8 y);
