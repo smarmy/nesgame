@@ -154,6 +154,7 @@ void main()
     }
 
 end_of_update:
+    clear_sprites();
     display_life();
     update_objects();
     wait_vblank();

@@ -368,8 +368,6 @@ void __fastcall__ update_objects(void)
   static u8 index;
   static u8 j;
 
-  clear_sprites();
-
   spritenum = 0;
   for (index = 0; index < num_objects; index++)
   {
