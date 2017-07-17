@@ -33,11 +33,13 @@ static void __fastcall__ display_life(void);
 
 static u8 jump_button_pressed = 0;
 static u8 jumps = 1;
+static u8 bullet_counter = 0;
 
 u8 keys = 0;
 u8 current_level = 0;
 u8 max_jumps = 1;
 u8 player_life = 3;
+u8 num_bullets = 0;
 
 static void reset()
 {
@@ -86,6 +88,9 @@ void main()
   while (1)
   {
     gamepad_state = check_gamepad();
+
+    if (bullet_counter > 0)
+      bullet_counter--;
 
     /* Update player based on input. */
     switch (objects.state[O_PLAYER])
@@ -186,6 +191,19 @@ static u8 __fastcall__ check_movement(u8 gamepad_state)
   else
   {
     objects.hspeed[O_PLAYER] = 0;
+  }
+
+  if ((gamepad_state & PAD_B) && bullet_counter == 0 && num_bullets < 3)
+  {
+    objects.sprite_index[O_PLAYER] = 39;
+    if (objects.state[O_PLAYER] == PLAYER_SPRITE_WALK)
+      objects.hspeed[O_PLAYER] = 0;
+
+    create_object(O_BULLET, fix2i(objects.x[O_PLAYER])+8, fix2i(objects.y[O_PLAYER])+4);
+    objects.hdir[num_objects-1] = objects.hdir[O_PLAYER];
+    bullet_counter = 8;
+
+    return 1;
   }
 
   /* Check jumping. */

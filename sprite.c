@@ -1,6 +1,6 @@
 #include "sprite.h"
 
-void clear_sprites(void)
+/*void clear_sprites(void)
 {
   register u8 i;
 
@@ -8,4 +8,4 @@ void clear_sprites(void)
   {
     SPRITE(i)->y = 0;
   }
-}
+}*/

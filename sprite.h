@@ -22,6 +22,9 @@ typedef struct sprite_t
 #define ATTR_MIRRORED 64
 #define ATTR_V_MIRROR 128
 
-void clear_sprites(void);
+/**
+ * Implemented in assembly.
+ */
+void __fastcall__ clear_sprites(void);
 
 #endif

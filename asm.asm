@@ -2,6 +2,7 @@
         .export _check_gamepad
         .export _wait_vblank
         .export _play_sound
+        .export _clear_sprites
 
         .import popa
 
@@ -73,4 +74,23 @@ _play_sound:
         lda #$00
         sta $4003
 
+        rts
+
+; ----------------------------------------------------------------------------
+; void __fastcall__ clear_sprites(void);
+
+_clear_sprites:
+        ldx #64
+        ldy #0
+        lda #0
+@loop:
+        sta $0200, y
+        dex
+        beq @done
+        iny
+        iny
+        iny
+        iny
+        jmp @loop
+@done:
         rts

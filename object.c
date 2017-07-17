@@ -284,6 +284,55 @@ static void __fastcall__ update_flame(u8 index)
   }
 }
 
+static void __fastcall__ update_bullet(u8 index)
+{
+#define BULLET_SPEED  3
+
+  static u8 dir, x;
+  static u8 i;
+
+  dir = objects.hdir[index];
+  x = fix2i(objects.x[index]);
+
+  switch (dir)
+  {
+    case RIGHT:
+      x += BULLET_SPEED;
+      break;
+    case LEFT:
+      x -= BULLET_SPEED;
+      break;
+  }
+
+  if (x < 8) { num_bullets--; remove_object(index); return; }
+  if (x > 248) { num_bullets--; remove_object(index); return; }
+
+  objects.x[index] = fixed(x, 0);
+
+  switch (objects.state[index])
+  {
+    case ENEMY_BULLET:
+      if (colcheck_objects(O_PLAYER, index))
+      {
+        hurt_player(objects.x[i] > objects.x[O_PLAYER]);
+        remove_object(index);
+      }
+      return;
+    case PLAYER_BULLET:
+      for (i = 1; i < num_objects; i++)
+      {
+        if (i == index) continue;
+        if (colcheck_objects(index, i) == 1)
+        {
+          remove_object(index);
+          num_bullets--;
+          break;
+        }
+      }
+      return;
+  }
+}
+
 static void __fastcall__ update_object(u8 index)
 {
   switch (objects.type[index])
@@ -302,6 +351,9 @@ static void __fastcall__ update_object(u8 index)
     case O_FLAME:
       update_flame(index);
       break;
+    case O_BULLET:
+      update_bullet(index);
+      break;
   }
 }
 
@@ -309,6 +361,8 @@ void __fastcall__ update_objects(void)
 {
   static u8 index;
   static u8 j;
+
+  clear_sprites();
 
   spritenum = 0;
   for (index = 0; index < num_objects; index++)
@@ -395,6 +449,12 @@ void __fastcall__ create_object(u8 type, u8 x, u8 y)
       objects.vdir[num_objects] = UP;
       objects.sprite_attribute[num_objects] |= ATTR_HIDDEN;
       BBOX(2, 14, 2, 14);
+      break;
+    case O_BULLET:
+      objects.sprite_index[num_objects] = 38;
+      objects.sprite_attribute[num_objects] &= ~ATTR_16x16;
+      num_bullets++;
+      BBOX(3, 5, 3, 5);
       break;
   }
 

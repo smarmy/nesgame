@@ -4,6 +4,9 @@
 #include "fixed.h"
 #include "typedef.h"
 
+#define PLAYER_BULLET 0
+#define ENEMY_BULLET  1
+
 #define MAX_OBJECTS 30
 
 #define O_PLAYER    0
@@ -11,6 +14,7 @@
 #define O_SKELETON  2
 #define O_BONE      3
 #define O_FLAME     4
+#define O_BULLET    5
 #define O_NOTHING   255
 
 typedef struct object_t
