@@ -48,6 +48,7 @@ static void reset()
   max_jumps = 1;
   player_life = 3;
   num_objects = 0;
+  num_bullets = 0;
 
   /* Turn off PPU. */
   PPUCTRL = 0;

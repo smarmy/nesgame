@@ -326,6 +326,12 @@ static void __fastcall__ update_bullet(u8 index)
         {
           remove_object(index);
           num_bullets--;
+          if (objects.life[i] > 0)
+          {
+            objects.life[i]--;
+            if (objects.life[i] == 0)
+              remove_object(i);
+          }
           break;
         }
       }
@@ -418,6 +424,7 @@ void __fastcall__ create_object(u8 type, u8 x, u8 y)
   objects.state[num_objects] = 0;
   objects.counter[num_objects] = 0;
   objects.type[num_objects] = type;
+  objects.life[num_objects] = 0;
 
 #define BBOX(x1, x2, y1, y2) \
   objects.bbox_x1[num_objects] = x1; \
@@ -433,10 +440,12 @@ void __fastcall__ create_object(u8 type, u8 x, u8 y)
     case O_BAT:
       objects.hspeed[num_objects] = fixed(1, 127);
       objects.sprite_index[num_objects] = 12;
+      objects.life[num_objects] = 3;
       BBOX(3, 14, 2, 12);
       break;
     case O_SKELETON:
       objects.sprite_index[num_objects] = 20;
+      objects.life[num_objects] = 3;
       BBOX(6, 10, 0, 16);
       break;
     case O_BONE:

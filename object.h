@@ -30,6 +30,7 @@ typedef struct object_t
   u8 bbox_y1[MAX_OBJECTS];
   u8 bbox_x2[MAX_OBJECTS];
   u8 bbox_y2[MAX_OBJECTS];
+  u8 life[MAX_OBJECTS];
   u8 state[MAX_OBJECTS];
   u8 counter[MAX_OBJECTS];
   u8 sprite_index[MAX_OBJECTS];
