@@ -47,25 +47,6 @@ static void __fastcall__ unlock(u8 tile_index)
 static u8 tile_index_1;
 static u8 tile_index_2;
 
-u8 __fastcall__ colcheck_down(u8 obj_index)
-{
-  tile_index_1 = ((fix2i(objects_y[obj_index])+objects_bbox_y2[obj_index]+1) & 0xF0) + ((fix2i(objects_x[obj_index]) + objects_bbox_x1[obj_index]) >> 4);
-  tile_index_2 = ((fix2i(objects_y[obj_index])+objects_bbox_y2[obj_index]+1) & 0xF0) + ((fix2i(objects_x[obj_index]) + objects_bbox_x2[obj_index]) >> 4);
-
-  if (is_solid(tile_index_1) == 0) return 1;
-  if (is_solid(tile_index_2) == 0) return 1;
-
-  if (obj_index == O_PLAYER)
-  {
-    if (tilemap[tile_index_1] == TILE_SPIKES) { hurt_player(objects_hdir[O_PLAYER]); return 0; }
-    if (tilemap[tile_index_2] == TILE_SPIKES) { hurt_player(objects_hdir[O_PLAYER]); return 0; }
-    if (tilemap[tile_index_1] == TILE_LAVA_SURFACE) { kill_player(); return 0; }
-    if (tilemap[tile_index_2] == TILE_LAVA_SURFACE) { kill_player(); return 0; }
-  }
-
-  return 0;
-}
-
 u8 __fastcall__ colcheck_up(u8 obj_index)
 {
   tile_index_1 = ((fix2i(objects_y[obj_index])+objects_bbox_y1[obj_index]-1) & 0xF0) + ((fix2i(objects_x[obj_index]) + objects_bbox_x1[obj_index]) >> 4);
