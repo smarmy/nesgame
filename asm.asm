@@ -3,6 +3,7 @@
         .export _wait_vblank
         .export _play_sound
         .export _clear_sprites
+        .export _display_life
 
         .import popa
 
@@ -93,4 +94,52 @@ _clear_sprites:
         iny
         jmp @loop
 @done:
+        rts
+
+; ----------------------------------------------------------------------------
+; void __fastcall__ display_life(void);
+
+        .import _player_life
+
+MAX_LIFE = 10
+FIRST_SPRITE = $35
+HEART_SPRITE = 33
+
+_display_life:
+        ldx #0                ; Loop counter and X position of sprite
+        ldy #0                ; Index in sprite array.
+
+@loop:  ; Sprite y coord
+        cpx _player_life      ; if loop counter (X) < _player_life, show sprite
+        bcc @show_sprite
+
+        lda #0
+        jmp @1
+@show_sprite:
+        lda #8
+@1:     sta $0200+(FIRST_SPRITE*4), y
+        iny
+
+        ; Sprite index
+        lda #33
+        sta $0200+(FIRST_SPRITE*4), y
+        iny
+
+        ; Sprite attribute
+        lda #0
+        sta $0200+(FIRST_SPRITE*4), y
+        iny
+
+        ; Sprite x coord
+        txa
+        asl a               ; Multiply by 8
+        asl a
+        asl a
+        sta $0200+(FIRST_SPRITE*4), y
+        iny
+
+        inx
+        cpx #MAX_LIFE
+        bne @loop
+
         rts

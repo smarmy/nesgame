@@ -18,7 +18,9 @@ static u8 __fastcall__ move_player_horiz(void);
 static u8 __fastcall__ move_player_vertical(void);
 static void __fastcall__ check_object_collisions(void);
 static u8 __fastcall__ transition(void);
-static void __fastcall__ display_life(void);
+
+/* Defined in assembly. */
+void __fastcall__ display_life(void);
 
 #define PLAYER_STATE_WALK  0
 #define PLAYER_STATE_CLIMB 1
@@ -599,28 +601,4 @@ static u8 __fastcall__ transition(void)
   PPUMASK = 0x1E;
 
   return 0;
-}
-
-static void __fastcall__ display_life(void)
-{
-  static u8 i;
-  static const u8 life_first_sprite = 0x35;
-  static sprite_t* sprite;
-
-  for (i = 0; i < MAX_LIFE; i++)
-  {
-    sprite = SPRITE(life_first_sprite + i);
-    sprite->attributes = 0;
-    sprite->index = 33;
-
-    if (i < player_life)
-    {
-      sprite->x = i << 3;
-      sprite->y = 8;
-    }
-    else
-    {
-      sprite->y = 0;
-    }
-  }
 }
