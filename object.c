@@ -313,9 +313,21 @@ static void __fastcall__ update_bullet(u8 index)
   switch (dir)
   {
     case RIGHT:
+      if (colcheck_right(index))
+      {
+        num_bullets--;
+        remove_object(index);
+        return;
+      }
       x += BULLET_SPEED;
       break;
     case LEFT:
+      if (colcheck_left(index))
+      {
+        num_bullets--;
+        remove_object(index);
+        return;
+      }
       x -= BULLET_SPEED;
       break;
   }
