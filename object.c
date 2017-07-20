@@ -355,6 +355,32 @@ static void __fastcall__ update_bullet(u8 index)
   }
 }
 
+static void __fastcall__ update_spikeball(u8 index)
+{
+  if (objects_hdir[index] == RIGHT)
+  {
+    if (colcheck_right(index) || fix2i(objects_x[index]) > 240)
+    {
+      objects_hdir[index] = LEFT;
+    }
+    else
+    {
+      objects_x[index] += objects_hspeed[index];
+    }
+  }
+  else
+  {
+    if (colcheck_left(index) || fix2i(objects_x[index]) < 16)
+    {
+      objects_hdir[index] = RIGHT;
+    }
+    else
+    {
+      objects_x[index] -= objects_hspeed[index];
+    }
+  }
+}
+
 static void __fastcall__ update_object(u8 index)
 {
   switch (objects_type[index])
@@ -375,6 +401,9 @@ static void __fastcall__ update_object(u8 index)
       break;
     case O_BULLET:
       update_bullet(index);
+      break;
+    case O_SPIKEBALL:
+      update_spikeball(index);
       break;
   }
 }
@@ -478,6 +507,11 @@ void __fastcall__ create_object(u8 type, u8 x, u8 y)
       objects_sprite_attribute[num_objects] &= ~ATTR_16x16;
       num_bullets++;
       BBOX(3, 5, 3, 5);
+      break;
+    case O_SPIKEBALL:
+      objects_hspeed[num_objects] = fixed(1, 0);
+      objects_sprite_index[num_objects] = 43;
+      BBOX(1, 15, 1, 15);
       break;
   }
 

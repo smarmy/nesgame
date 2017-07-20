@@ -542,6 +542,7 @@ static void __fastcall__ check_object_collisions(void)
       case O_SKELETON:
       case O_BONE:
       case O_FLAME:
+      case O_SPIKEBALL:
         if (colcheck_objects(O_PLAYER, i))
         {
           hurt_player(objects_x[i] > objects_x[O_PLAYER]);
