@@ -12,6 +12,7 @@ static u8 __fastcall__ is_solid(u8 tile_index)
     case TILE_DIRT_SURFACE:
     case TILE_DIRT_BODY:
     case TILE_BRIDGE:
+    case TILE_FRAGILE:
       return 0;
   }
   return 1;
@@ -63,13 +64,13 @@ u8 __fastcall__ colcheck_right(u8 obj_index)
   tile_index_1 = ((fix2i(objects_y[obj_index])+objects_bbox_y1[obj_index]+1) & 0xF0) + ((fix2i(objects_x[obj_index]) + objects_bbox_x2[obj_index] + 1) >> 4);
   tile_index_2 = ((fix2i(objects_y[obj_index])+objects_bbox_y2[obj_index]-1) & 0xF0) + ((fix2i(objects_x[obj_index]) + objects_bbox_x2[obj_index] + 1) >> 4);
 
-  if (is_solid(tile_index_1) == 0) return 1;
-  if (is_solid(tile_index_2) == 0) return 1;
+  if (is_solid(tile_index_1) == 0) return tile_index_1;
+  if (is_solid(tile_index_2) == 0) return tile_index_2;
 
   if (obj_index == O_PLAYER)
   {
-    if (tilemap[tile_index_1] == TILE_LOCK) { unlock(tile_index_1); return 1; }
-    if (tilemap[tile_index_2] == TILE_LOCK) { unlock(tile_index_2); return 1; }
+    if (tilemap[tile_index_1] == TILE_LOCK) { unlock(tile_index_1); return tile_index_1; }
+    if (tilemap[tile_index_2] == TILE_LOCK) { unlock(tile_index_2); return tile_index_2; }
   }
 
   return 0;
@@ -80,13 +81,13 @@ u8 __fastcall__ colcheck_left(u8 obj_index)
   tile_index_1 = ((fix2i(objects_y[obj_index])+objects_bbox_y1[obj_index]+1) & 0xF0) + ((fix2i(objects_x[obj_index]) + objects_bbox_x1[obj_index] - 1) >> 4);
   tile_index_2 = ((fix2i(objects_y[obj_index])+objects_bbox_y2[obj_index]-1) & 0xF0) + ((fix2i(objects_x[obj_index]) + objects_bbox_x1[obj_index] - 1) >> 4);
 
-  if (is_solid(tile_index_1) == 0) return 1;
-  if (is_solid(tile_index_2) == 0) return 1;
+  if (is_solid(tile_index_1) == 0) return tile_index_1;
+  if (is_solid(tile_index_2) == 0) return tile_index_2;
 
   if (obj_index == O_PLAYER)
   {
-    if (tilemap[tile_index_1] == TILE_LOCK) { unlock(tile_index_1); return 1; }
-    if (tilemap[tile_index_2] == TILE_LOCK) { unlock(tile_index_2); return 1; }
+    if (tilemap[tile_index_1] == TILE_LOCK) { unlock(tile_index_1); return tile_index_1; }
+    if (tilemap[tile_index_2] == TILE_LOCK) { unlock(tile_index_2); return tile_index_2; }
   }
 
   return 0;

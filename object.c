@@ -306,6 +306,7 @@ static void __fastcall__ update_bullet(u8 index)
 
   static u8 dir, x;
   static u8 i;
+  static u8 tile_index;
 
   dir = objects_hdir[index];
   x = fix2i(objects_x[index]);
@@ -313,8 +314,11 @@ static void __fastcall__ update_bullet(u8 index)
   switch (dir)
   {
     case RIGHT:
-      if (colcheck_right(index))
+      if ((tile_index = colcheck_right(index)))
       {
+        if (tilemap[tile_index] == TILE_FRAGILE)
+          remove_tile(tile_index);
+
         num_bullets--;
         remove_object(index);
         return;
@@ -322,8 +326,11 @@ static void __fastcall__ update_bullet(u8 index)
       x += BULLET_SPEED;
       break;
     case LEFT:
-      if (colcheck_left(index))
+      if ((tile_index = colcheck_left(index)))
       {
+        if (tilemap[tile_index] == TILE_FRAGILE)
+          remove_tile(tile_index);
+
         num_bullets--;
         remove_object(index);
         return;

@@ -32,6 +32,8 @@ is_solid:
         beq @true
         cmp #$0C
         beq @true
+        cmp #$11
+        beq @true
 @false:
         lda #1
         rts
