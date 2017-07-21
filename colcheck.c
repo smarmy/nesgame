@@ -4,19 +4,8 @@
 #include "object.h"
 #include "gamedata.h"
 
-static u8 __fastcall__ is_solid(u8 tile_index)
-{
-  switch (tilemap[tile_index])
-  {
-    case TILE_BRICK:
-    case TILE_DIRT_SURFACE:
-    case TILE_DIRT_BODY:
-    case TILE_BRIDGE:
-    case TILE_FRAGILE:
-      return 0;
-  }
-  return 1;
-}
+/* Defined in asm */
+u8 __fastcall__ is_solid(u8 tile_index);
 
 static void __fastcall__ unlock(u8 tile_index)
 {

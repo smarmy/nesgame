@@ -1,3 +1,4 @@
+        .export _is_solid
         .export _colcheck_down
         .export _colcheck_objects
 
@@ -19,9 +20,9 @@
         .include "constants.inc"
 
 ; ----------------------------------------------------------------------------
-; static u8 is_solid(u8 tile_index)
+; u8 __fastcall__ is_solid(u8 tile_index)
 
-is_solid:
+_is_solid:
         tay
         lda _tilemap, y
         cmp #$01
@@ -81,7 +82,7 @@ _colcheck_down:
         adc tmp1                ; Y part + X part
         sta tmp1                ; tile_index_1 -> tmp1
 
-        jsr is_solid
+        jsr _is_solid
         beq @solid
 
         ; --------------------------------------------------------------------
@@ -104,7 +105,7 @@ _colcheck_down:
         adc tmp3                ; Y part + X part
         sta tmp2                ; tile_index_1 -> tmp2
 
-        jsr is_solid
+        jsr _is_solid
         beq @solid
 
         ; --------------------------------------------------------------------
