@@ -400,6 +400,42 @@ static void __fastcall__ update_spikeball(u8 index)
   }
 }
 
+static void __fastcall__ update_doublejump(u8 index)
+{
+#define COUNTER_MAX 16
+
+  if (max_jumps == 2)
+  {
+    remove_object(index);
+    return;
+  }
+
+  if (objects_vdir[index] == UP)
+  {
+    if (objects_counter[index] == COUNTER_MAX)
+    {
+      objects_vdir[index] = DOWN;
+      objects_counter[index] = 0;
+      return;
+    }
+    objects_y[index] -= 32;
+    objects_counter[index]++;
+  }
+  else
+  {
+    if (objects_counter[index] == COUNTER_MAX)
+    {
+      objects_vdir[index] = UP;
+      objects_counter[index] = 0;
+      return;
+    }
+    objects_y[index] += 32;
+    objects_counter[index]++;
+  }
+
+#undef COUNTER_MAX
+}
+
 static void __fastcall__ update_object(u8 index)
 {
   switch (objects_type[index])
@@ -423,6 +459,9 @@ static void __fastcall__ update_object(u8 index)
       break;
     case O_SPIKEBALL:
       update_spikeball(index);
+      break;
+    case O_DOUBLEJUMP:
+      update_doublejump(index);
       break;
   }
 }
@@ -531,6 +570,10 @@ void __fastcall__ create_object(u8 type, u8 x, u8 y)
       objects_hspeed[num_objects] = fixed(1, 0);
       objects_sprite_index[num_objects] = 43;
       BBOX(1, 15, 1, 15);
+      break;
+    case O_DOUBLEJUMP:
+      BBOX(4, 12, 4, 12);
+      objects_sprite_index[num_objects] = 47;
       break;
   }
 

@@ -548,6 +548,12 @@ static void __fastcall__ check_object_collisions(void)
           hurt_player(objects_x[i] > objects_x[O_PLAYER]);
         }
         break;
+      case O_DOUBLEJUMP:
+        if (colcheck_objects(O_PLAYER, i))
+        {
+          max_jumps = 2;
+        }
+        break;
     }
   }
 }

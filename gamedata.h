@@ -5,7 +5,7 @@
 
 extern u8 keys;
 extern u8 current_level;
-extern u8 double_jump;
+extern u8 max_jumps;
 extern u8 player_life;
 extern u8 num_bullets;
 
