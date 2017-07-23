@@ -17,6 +17,7 @@
 #define O_BULLET    5
 #define O_SPIKEBALL 6
 #define O_DOUBLEJUMP 7
+#define O_GUN       8
 #define O_NOTHING   255
 
 extern fixed_t objects_x[MAX_OBJECTS];

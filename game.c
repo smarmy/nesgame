@@ -42,6 +42,7 @@ u8 current_level = 0;
 u8 max_jumps = 1;
 u8 player_life = 3;
 u8 num_bullets = 0;
+u8 has_gun = 0;
 
 static void reset()
 {
@@ -197,7 +198,7 @@ static u8 __fastcall__ check_movement(u8 gamepad_state)
     objects_hspeed[O_PLAYER] = 0;
   }
 
-  if ((gamepad_state & PAD_B) && bullet_counter == 0 && num_bullets < 3)
+  if ((gamepad_state & PAD_B) && has_gun == 1 && bullet_counter == 0 && num_bullets < 3)
   {
     objects_sprite_index[O_PLAYER] = 39;
     if (objects_state[O_PLAYER] == PLAYER_SPRITE_WALK)
@@ -552,6 +553,12 @@ static void __fastcall__ check_object_collisions(void)
         if (colcheck_objects(O_PLAYER, i))
         {
           max_jumps = 2;
+        }
+        break;
+      case O_GUN:
+        if (colcheck_objects(O_PLAYER, i))
+        {
+          has_gun = 1;
         }
         break;
     }
