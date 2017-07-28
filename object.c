@@ -400,15 +400,9 @@ static void __fastcall__ update_spikeball(u8 index)
   }
 }
 
-static void __fastcall__ update_doublejump(u8 index)
+static void __fastcall__ animate_powerup(u8 index)
 {
 #define COUNTER_MAX 16
-
-  if (max_jumps == 2)
-  {
-    remove_object(index);
-    return;
-  }
 
   if (objects_vdir[index] == UP)
   {
@@ -436,40 +430,41 @@ static void __fastcall__ update_doublejump(u8 index)
 #undef COUNTER_MAX
 }
 
+static void __fastcall__ update_doublejump(u8 index)
+{
+  if (max_jumps == 2)
+  {
+    remove_object(index);
+    return;
+  }
+
+  animate_powerup(index);
+}
+
 static void __fastcall__ update_gun(u8 index)
 {
-#define COUNTER_MAX 16
-
   if (has_gun == 1)
   {
     remove_object(index);
     return;
   }
 
-  if (objects_vdir[index] == UP)
+  animate_powerup(index);
+}
+
+static void __fastcall__ update_treasure(u8 index)
+{
+  static u8 state;
+
+  state = objects_state[index];
+
+  if (treasure_states[state] == 1)
   {
-    if (objects_counter[index] == COUNTER_MAX)
-    {
-      objects_vdir[index] = DOWN;
-      objects_counter[index] = 0;
-      return;
-    }
-    objects_y[index] -= 32;
-    objects_counter[index]++;
-  }
-  else
-  {
-    if (objects_counter[index] == COUNTER_MAX)
-    {
-      objects_vdir[index] = UP;
-      objects_counter[index] = 0;
-      return;
-    }
-    objects_y[index] += 32;
-    objects_counter[index]++;
+    remove_object(index);
+    return;
   }
 
-#undef COUNTER_MAX
+  animate_powerup(index);
 }
 
 static void __fastcall__ update_object(u8 index)
@@ -501,6 +496,10 @@ static void __fastcall__ update_object(u8 index)
       break;
     case O_GUN:
       update_gun(index);
+      break;
+    case O_TREASURE_1:
+      /* All treasures will use O_TREASURE_1 ID. */
+      update_treasure(index);
       break;
   }
 }
@@ -577,6 +576,9 @@ void __fastcall__ create_object(u8 type, u8 x, u8 y)
     case O_PLAYER:
       BBOX(4, 12, 0, 16);
       break;
+
+    /* Enemies. */
+
     case O_BAT:
       objects_hspeed[num_objects] = fixed(1, 127);
       objects_sprite_index[num_objects] = 12;
@@ -610,6 +612,9 @@ void __fastcall__ create_object(u8 type, u8 x, u8 y)
       objects_sprite_index[num_objects] = 43;
       BBOX(1, 15, 1, 15);
       break;
+
+    /* Powerups */
+
     case O_DOUBLEJUMP:
       BBOX(4, 12, 4, 12);
       objects_sprite_index[num_objects] = 47;
@@ -617,6 +622,63 @@ void __fastcall__ create_object(u8 type, u8 x, u8 y)
     case O_GUN:
       BBOX(4, 12, 4, 12);
       objects_sprite_index[num_objects] = 51;
+      break;
+
+    /* Treasures */
+
+    case O_TREASURE_1:
+      BBOX(4, 12, 4, 12);
+      objects_sprite_index[num_objects] = 55;
+      objects_state[num_objects] = 0;
+      objects_type[num_objects] = O_TREASURE_1;
+      break;
+    case O_TREASURE_2:
+      BBOX(4, 12, 4, 12);
+      objects_sprite_index[num_objects] = 59;
+      objects_state[num_objects] = 1;
+      objects_type[num_objects] = O_TREASURE_1;
+      break;
+    case O_TREASURE_3:
+      BBOX(4, 12, 4, 12);
+      objects_sprite_index[num_objects] = 63;
+      objects_state[num_objects] = 2;
+      objects_type[num_objects] = O_TREASURE_1;
+      break;
+    case O_TREASURE_4:
+      BBOX(4, 12, 4, 12);
+      objects_sprite_index[num_objects] = 67;
+      objects_state[num_objects] = 3;
+      objects_type[num_objects] = O_TREASURE_1;
+      break;
+    case O_TREASURE_5:
+      BBOX(4, 12, 4, 12);
+      objects_sprite_index[num_objects] = 71;
+      objects_state[num_objects] = 4;
+      objects_type[num_objects] = O_TREASURE_1;
+      break;
+    case O_TREASURE_6:
+      BBOX(4, 12, 4, 12);
+      objects_sprite_index[num_objects] = 75;
+      objects_state[num_objects] = 5;
+      objects_type[num_objects] = O_TREASURE_1;
+      break;
+    case O_TREASURE_7:
+      BBOX(4, 12, 4, 12);
+      objects_sprite_index[num_objects] = 79;
+      objects_state[num_objects] = 6;
+      objects_type[num_objects] = O_TREASURE_1;
+      break;
+    case O_TREASURE_8:
+      BBOX(4, 12, 4, 12);
+      objects_sprite_index[num_objects] = 83;
+      objects_state[num_objects] = 7;
+      objects_type[num_objects] = O_TREASURE_1;
+      break;
+    case O_TREASURE_9:
+      BBOX(4, 12, 4, 12);
+      objects_sprite_index[num_objects] = 87;
+      objects_state[num_objects] = 8;
+      objects_type[num_objects] = O_TREASURE_1;
       break;
   }
 

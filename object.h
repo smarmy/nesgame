@@ -18,6 +18,15 @@
 #define O_SPIKEBALL 6
 #define O_DOUBLEJUMP 7
 #define O_GUN       8
+#define O_TREASURE_1  9
+#define O_TREASURE_2  10
+#define O_TREASURE_3  11
+#define O_TREASURE_4  12
+#define O_TREASURE_5  13
+#define O_TREASURE_6  14
+#define O_TREASURE_7  15
+#define O_TREASURE_8  16
+#define O_TREASURE_9  17
 #define O_NOTHING   255
 
 extern fixed_t objects_x[MAX_OBJECTS];

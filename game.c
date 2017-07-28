@@ -43,9 +43,21 @@ u8 max_jumps = 1;
 u8 player_life = 3;
 u8 num_bullets = 0;
 u8 has_gun = 0;
+u8 treasure_states[9] = {0,0,0,0,0,0,0,0,0};
 
 static void reset()
 {
+  treasure_states[0] = 0;
+  treasure_states[1] = 0;
+  treasure_states[2] = 0;
+  treasure_states[3] = 0;
+  treasure_states[4] = 0;
+  treasure_states[5] = 0;
+  treasure_states[6] = 0;
+  treasure_states[7] = 0;
+  treasure_states[8] = 0;
+  treasure_states[9] = 0;
+
   keys = 0;
   current_level = 0;
   max_jumps = 1;
@@ -74,20 +86,7 @@ void main()
   static u8 tile_check_index;
   static u8 gamepad_state;
 
-  /* Turn off PPU. */
-  PPUCTRL = 0;
-  PPUMASK = 0;
-
-  create_object(O_PLAYER, 80, 176);
-  load_level(current_level);
-
-  /* Reset scroll. */
-  PPUSCROLL = 0;
-  PPUSCROLL = 0;
-
-  /* Turn on PPU. */
-  PPUCTRL = 0x88;
-  PPUMASK = 0x1E;
+  reset();
 
   while (1)
   {
@@ -559,6 +558,13 @@ static void __fastcall__ check_object_collisions(void)
         if (colcheck_objects(O_PLAYER, i))
         {
           has_gun = 1;
+        }
+        break;
+      case O_TREASURE_1:
+        if (colcheck_objects(O_PLAYER, i))
+        {
+          u8 treasure_index = objects_state[i];
+          treasure_states[treasure_index] = 1;
         }
         break;
     }

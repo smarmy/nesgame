@@ -10,6 +10,8 @@ extern u8 player_life;
 extern u8 num_bullets;
 extern u8 has_gun;
 
+extern u8 treasure_states[9];
+
 #define LEVELS_PER_ROW  6
 #define MAX_LIFE        10
 #define GRAVITY 25
