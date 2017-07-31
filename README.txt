@@ -7,3 +7,4 @@ Known bugs:
 - Some enemies are invincible
 - Spikes are weird
 - Sometimes when dropping from ladders player faces one way but shoots another
+- Does not work in higan emulator (and probably not on real hardware, but this is 100% untested)
