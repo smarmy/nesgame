@@ -40,7 +40,6 @@ static u8 bullet_counter = 0;
 
 static u8 fall_delay = 0;
 
-u8 keys = 0;
 u8 current_level = 0;
 u8 max_jumps = 1;
 u8 player_life = 3;
@@ -61,7 +60,6 @@ static void reset()
   treasure_states[8] = 0;
   treasure_states[9] = 0;
 
-  keys = 0;
   current_level = 0;
   max_jumps = 1;
   player_life = 3;
@@ -253,39 +251,6 @@ void main()
     }
 
     check_object_collisions();
-
-    /* Check collisions with special tiles. */
-    tile_check_index = tile_check(O_PLAYER, TILE_KEY);
-    if (tile_check_index != 0)
-    {
-      play_sound(4, 0xC9);
-
-      remove_tile(tile_check_index);
-      keys++;
-      goto end_of_update;
-    }
-
-    tile_check_index = tile_check(O_PLAYER, TILE_DOOR);
-    if (tile_check_index != 0)
-    {
-      current_level++;
-
-      /* Turn off PPU. */
-      PPUCTRL = 0;
-      PPUMASK = 0;
-
-      load_level(current_level);
-
-      /* Reset scroll. */
-      PPUSCROLL = 0;
-      PPUSCROLL = 0;
-
-      /* Turn on PPU. */
-      PPUCTRL = 0x88;
-      PPUMASK = 0x1E;
-
-      goto end_of_update;
-    }
 
 end_of_update:
     clear_sprites();
@@ -719,6 +684,10 @@ static void __fastcall__ check_object_collisions(void)
           if (treasure_count == MAX_TREASURES)
           {
             winscreen();
+          }
+          else
+          {
+            play_sound(4, 0xC9);
           }
 
           remaining_treasures[0] = '0' + (MAX_TREASURES - treasure_count);

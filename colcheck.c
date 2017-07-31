@@ -7,20 +7,6 @@
 /* Defined in asm */
 u8 __fastcall__ is_solid(u8 tile_index);
 
-static void __fastcall__ unlock(u8 tile_index)
-{
-  if (keys > 0)
-  {
-    play_sound(4, 0xF0);
-    remove_tile(tile_index);
-    keys--;
-  }
-  else
-  {
-    play_sound(1, 0xA0);
-  }
-}
-
 /*****************************************************************************
  * Calculate tile index:
  * index = (y/map_width) * map_width + (x/map_width)
@@ -56,12 +42,6 @@ u8 __fastcall__ colcheck_right(u8 obj_index)
   if (is_solid(tile_index_1) == 0) return tile_index_1;
   if (is_solid(tile_index_2) == 0) return tile_index_2;
 
-  if (obj_index == O_PLAYER)
-  {
-    if (tilemap[tile_index_1] == TILE_LOCK) { unlock(tile_index_1); return tile_index_1; }
-    if (tilemap[tile_index_2] == TILE_LOCK) { unlock(tile_index_2); return tile_index_2; }
-  }
-
   return 0;
 }
 
@@ -72,12 +52,6 @@ u8 __fastcall__ colcheck_left(u8 obj_index)
 
   if (is_solid(tile_index_1) == 0) return tile_index_1;
   if (is_solid(tile_index_2) == 0) return tile_index_2;
-
-  if (obj_index == O_PLAYER)
-  {
-    if (tilemap[tile_index_1] == TILE_LOCK) { unlock(tile_index_1); return tile_index_1; }
-    if (tilemap[tile_index_2] == TILE_LOCK) { unlock(tile_index_2); return tile_index_2; }
-  }
 
   return 0;
 }

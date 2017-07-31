@@ -5,7 +5,6 @@
 
 #define MAX_TREASURES 9
 
-extern u8 keys;
 extern u8 current_level;
 extern u8 max_jumps;
 extern u8 player_life;
