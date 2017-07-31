@@ -215,6 +215,11 @@ static void winscreen()
 
   clear_sprites();
 
+  for (i = 0; i < MAX_TREASURES; i++)
+  {
+    treasure_states[i] = 0;
+  }
+
   num_objects = 0;
   create_object(O_TREASURE_1, 16, 16);
   create_object(O_TREASURE_2, 48, 32);
@@ -328,6 +333,8 @@ static u8 __fastcall__ check_movement(u8 gamepad_state)
     create_object(O_BULLET, fix2i(objects_x[O_PLAYER])+8, fix2i(objects_y[O_PLAYER])+4);
     objects_hdir[num_objects-1] = objects_hdir[O_PLAYER];
     bullet_counter = 8;
+
+    play_sound(4, 0xB0);
 
     return 1;
   }
