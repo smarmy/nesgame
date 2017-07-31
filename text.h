@@ -4,5 +4,6 @@
 #include "typedef.h"
 
 void __fastcall__ print_text(u8 x, u8 y, const char* text);
+void __fastcall__ print_text_2(u8 x, u8 y, const char* text);
 
 #endif /* TEXT_H_ */

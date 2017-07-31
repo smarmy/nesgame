@@ -84,11 +84,138 @@ static void reset()
   PPUMASK = 0x1E;
 }
 
+static void titlescreen()
+{
+  /* Turn off PPU. */
+  PPUCTRL = 0;
+  PPUMASK = 0;
+
+  ppuwrite(0x3f00, 0x0d);
+  ppuwrite(0x3f01, 0x00);
+  ppuwrite(0x3f02, 0x10);
+  ppuwrite(0x3f03, 0x20);
+
+  print_text_2(0, 1,   "********************************");
+  print_text_2(0, 2,   "*                              *");
+  print_text_2(0, 3,   "*                              *");
+  print_text_2(0, 4,   "*                              *");
+  print_text_2(0, 5,   "*                              *");
+  print_text_2(0, 6,   "*                              *");
+  print_text_2(0, 7,   "*                              *");
+  print_text_2(0, 8,   "*                              *");
+  print_text_2(0, 9,   "*                              *");
+  print_text_2(0, 10,  "*                              *");
+  print_text_2(0, 11,  "*                              *");
+  print_text_2(0, 12,  "*                              *");
+  print_text_2(0, 13,  "*                              *");
+  print_text_2(0, 14,  "*     WELCOME TREASURE MAN     *");
+  print_text_2(0, 15,  "*                              *");
+  print_text_2(0, 16,  "*                              *");
+  print_text_2(0, 17,  "*         PRESS START          *");
+  print_text_2(0, 18,  "*                              *");
+  print_text_2(0, 19,  "*                              *");
+  print_text_2(0, 20,  "*                              *");
+  print_text_2(0, 21,  "*                              *");
+  print_text_2(0, 22,  "*                              *");
+  print_text_2(0, 23,  "*                              *");
+  print_text_2(0, 24,  "*                              *");
+  print_text_2(0, 25,  "*                              *");
+  print_text_2(0, 26,  "* MADE FOR AWFUL GAME JAM 2017 *");
+  print_text_2(0, 27,  "*                              *");
+  print_text_2(0, 28,  "********************************");
+
+  /* Reset scroll. */
+  PPUSCROLL = 0;
+  PPUSCROLL = 0;
+
+  /* Turn on PPU. */
+  PPUCTRL = 0x88;
+  PPUMASK = 0x1E;
+
+  while (1)
+  {
+    static u8 gamepad_state;
+    gamepad_state = check_gamepad();
+
+    if (gamepad_state & PAD_START)
+    {
+      break;
+    }
+  }
+}
+
+static void winscreen()
+{
+  /* Turn off PPU. */
+  PPUCTRL = 0;
+  PPUMASK = 0;
+
+  ppuwrite(0x3f00, 0x0d);
+  ppuwrite(0x3f01, 0x00);
+  ppuwrite(0x3f02, 0x10);
+  ppuwrite(0x3f03, 0x20);
+
+  print_text_2(0, 1,   "********************************");
+  print_text_2(0, 2,   "*                              *");
+  print_text_2(0, 3,   "*                              *");
+  print_text_2(0, 4,   "*                              *");
+  print_text_2(0, 5,   "*                              *");
+  print_text_2(0, 6,   "*                              *");
+  print_text_2(0, 7,   "*                              *");
+  print_text_2(0, 8,   "*                              *");
+  print_text_2(0, 9,   "*                              *");
+  print_text_2(0, 10,  "*                              *");
+  print_text_2(0, 11,  "*     ALL TREASURES HAS BEEN   *");
+  print_text_2(0, 12,  "*     COLLECTED.               *");
+  print_text_2(0, 13,  "*                              *");
+  print_text_2(0, 14,  "*     PEACE IS RESTORED AT     *");
+  print_text_2(0, 15,  "*     LAST.                    *");
+  print_text_2(0, 16,  "*                              *");
+  print_text_2(0, 17,  "*                              *");
+  print_text_2(0, 18,  "*                              *");
+  print_text_2(0, 19,  "*                              *");
+  print_text_2(0, 20,  "*                              *");
+  print_text_2(0, 21,  "*                              *");
+  print_text_2(0, 22,  "*                              *");
+  print_text_2(0, 23,  "*                              *");
+  print_text_2(0, 24,  "*                              *");
+  print_text_2(0, 25,  "*                              *");
+  print_text_2(0, 26,  "*                              *");
+  print_text_2(0, 27,  "*                              *");
+  print_text_2(0, 28,  "********************************");
+
+  /* Reset scroll. */
+  PPUSCROLL = 0;
+  PPUSCROLL = 0;
+
+  /* Turn on PPU. */
+  PPUCTRL = 0x88;
+  PPUMASK = 0x1E;
+
+  num_objects = 0;
+  create_object(O_TREASURE_1, 16, 16);
+  create_object(O_TREASURE_2, 48, 32);
+  create_object(O_TREASURE_3, 64, 200);
+  create_object(O_TREASURE_4, 197, 133);
+  create_object(O_TREASURE_5, 230, 75);
+  create_object(O_TREASURE_7, 150, 150);
+  create_object(O_TREASURE_8, 199, 121);
+  create_object(O_TREASURE_9, 45, 140);
+
+  while (1)
+  {
+    update_objects();
+    wait_vblank();
+  }
+}
+
 void main()
 {
   static u8 tile_check_index;
   static u8 gamepad_state;
 
+  clear_sprites();
+  titlescreen();
   reset();
 
   while (1)
@@ -587,6 +714,11 @@ static void __fastcall__ check_object_collisions(void)
           for (loop_c = 0; loop_c < MAX_TREASURES; loop_c++)
           {
             if (treasure_states[loop_c] == 1) treasure_count++;
+          }
+
+          if (treasure_count == MAX_TREASURES)
+          {
+            winscreen();
           }
 
           remaining_treasures[0] = '0' + (MAX_TREASURES - treasure_count);
