@@ -65,6 +65,7 @@ static void reset()
   player_life = 3;
   num_objects = 0;
   num_bullets = 0;
+  has_gun = 0;
 
   /* Turn off PPU. */
   PPUCTRL = 0;
@@ -330,6 +331,8 @@ static u8 __fastcall__ check_movement(u8 gamepad_state)
 
       jump_button_pressed = 1;
       jumps--;
+
+      play_sound(4, 0xC9);
 
       objects_state[O_PLAYER] = PLAYER_STATE_JUMP;
       objects_vspeed[O_PLAYER] = fixed(2, 0);
