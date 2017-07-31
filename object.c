@@ -41,6 +41,7 @@ static void __fastcall__ update_sprite(u8 index)
   {
     sprite = SPRITE(spritenum);
     sprite->y = 0;
+    sprite->index = 0xFF;
     spritenum++;
 
     if ((objects_sprite_attribute[index] & ATTR_16x16) == 0)
@@ -48,14 +49,17 @@ static void __fastcall__ update_sprite(u8 index)
 
     sprite = SPRITE(spritenum);
     sprite->y = 0;
+    sprite->index = 0xFF;
     spritenum++;
 
     sprite = SPRITE(spritenum);
     sprite->y = 0;
+    sprite->index = 0xFF;
     spritenum++;
 
     sprite = SPRITE(spritenum);
     sprite->y = 0;
+    sprite->index = 0xFF;
     spritenum++;
 
     return;
