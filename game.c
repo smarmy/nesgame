@@ -7,6 +7,7 @@
 #include "ppu.h"
 #include "colcheck.h"
 #include "gamedata.h"
+#include "text.h"
 
 static u8 __fastcall__ check_movement(u8 gamepad_state);
 static void __fastcall__ walk(u8 gamepad_state);
@@ -552,6 +553,7 @@ static void __fastcall__ check_object_collisions(void)
         if (colcheck_objects(O_PLAYER, i))
         {
           max_jumps = 2;
+          print_text(2, 8, "YOU FOUND DOUBLE JUMP!!");
         }
         break;
       case O_GUN:
