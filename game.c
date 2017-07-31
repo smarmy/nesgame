@@ -611,7 +611,7 @@ static u8 __fastcall__ transition(void)
     current_level--;
     objects_x[O_PLAYER] = fixed(240, 0);
   }
-  else if (y > 230)
+  else if (y > 216)
   {
     current_level += LEVELS_PER_ROW;
     objects_y[O_PLAYER] = fixed(16, 0);
@@ -622,7 +622,7 @@ static u8 __fastcall__ transition(void)
       return 1;
 
     current_level -= LEVELS_PER_ROW;
-    objects_y[O_PLAYER] = fixed(230, 0);
+    objects_y[O_PLAYER] = fixed(216, 0);
   }
   else
   {
