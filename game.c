@@ -332,7 +332,7 @@ static u8 __fastcall__ check_movement(u8 gamepad_state)
       jump_button_pressed = 1;
       jumps--;
 
-      play_sound(4, 0xC9);
+      play_sound(4, 0xFE);
 
       objects_state[O_PLAYER] = PLAYER_STATE_JUMP;
       objects_vspeed[O_PLAYER] = fixed(2, 0);
@@ -370,6 +370,8 @@ static void __fastcall__ climb(u8 gamepad_state)
     objects_vdir[O_PLAYER] = UP;
 
     flip_counter++;
+
+    /*if (flip_counter & 8) play_sound(4, 0x80);*/
   }
   else if (gamepad_state & PAD_DOWN)
   {
@@ -377,6 +379,8 @@ static void __fastcall__ climb(u8 gamepad_state)
     objects_vdir[O_PLAYER] = DOWN;
 
     flip_counter++;
+
+    /*if (flip_counter & 8) play_sound(4, 0x80);*/
   }
 
   if (flip_counter & 8)
@@ -659,6 +663,7 @@ static void __fastcall__ check_object_collisions(void)
         {
           max_jumps = 2;
           print_text(2, 8, "YOU FOUND DOUBLE JUMP!!");
+          play_sound(4, 0xC9);
         }
         break;
       case O_GUN:
@@ -666,6 +671,7 @@ static void __fastcall__ check_object_collisions(void)
         {
           has_gun = 1;
           print_text(2, 8, "YOU FOUND GUN!!");
+          play_sound(4, 0xC9);
         }
         break;
       case O_TREASURE_1:
@@ -747,6 +753,7 @@ static u8 __fastcall__ transition(void)
   PPUCTRL = 0;
   PPUMASK = 0;
 
+  num_bullets = 0;
   load_level(current_level);
 
   /* Reset scroll. */
