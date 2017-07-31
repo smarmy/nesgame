@@ -20,4 +20,14 @@
 
 #define VRAMBUFFER ((u8*)0x0300)
 
+#define turn_off_ppu() \
+    PPUCTRL = 0; \
+    PPUMASK = 0
+
+#define turn_on_ppu() \
+    PPUSCROLL = 0; \
+    PPUSCROLL = 0; \
+    PPUCTRL = 0x88; \
+    PPUMASK = 0x1E
+
 #endif /* PPU_H_ */

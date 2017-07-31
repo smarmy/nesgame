@@ -43,6 +43,7 @@ static u8 fall_delay = 0;
 u8 current_level = 0;
 u8 max_jumps = 1;
 u8 player_life = 3;
+u8 game_life = MAX_GAME_LIFE;
 u8 num_bullets = 0;
 u8 has_gun = 0;
 u8 treasure_states[9] = {0,0,0,0,0,0,0,0,0};
@@ -66,24 +67,21 @@ static void reset()
   current_level = 0;
   max_jumps = 1;
   player_life = 3;
+  game_life = game_life == 0 ? MAX_GAME_LIFE : game_life;
   num_objects = 0;
   num_bullets = 0;
   has_gun = 0;
 
-  /* Turn off PPU. */
-  PPUCTRL = 0;
-  PPUMASK = 0;
+  checkpoint_level = 0;
+  checkpoint_x = 0;
+  checkpoint_y = 0;
+
+  turn_off_ppu();
 
   create_object(O_PLAYER, 80, 176);
   load_level(current_level);
 
-  /* Reset scroll. */
-  PPUSCROLL = 0;
-  PPUSCROLL = 0;
-
-  /* Turn on PPU. */
-  PPUCTRL = 0x88;
-  PPUMASK = 0x1E;
+  turn_on_ppu();
 }
 
 static void reset_checkpoint()
@@ -118,22 +116,14 @@ static void reset_checkpoint()
     }
   }
 
-  /* Reset scroll. */
-  PPUSCROLL = 0;
-  PPUSCROLL = 0;
-
-  /* Turn on PPU. */
-  PPUCTRL = 0x88;
-  PPUMASK = 0x1E;
+  turn_on_ppu();
 }
 
-static void titlescreen()
+static void __fastcall__ prepare_text_screen(void)
 {
-  u8 i;
+  static u8 i;
 
-  /* Turn off PPU. */
-  PPUCTRL = 0;
-  PPUMASK = 0;
+  turn_off_ppu();
 
   /* set up a palette. */
   ppuwrite(0x3f00, 0x0d);
@@ -148,6 +138,11 @@ static void titlescreen()
   {
     PPUDATA = 0;
   }
+}
+
+static void __fastcall__ titlescreen(void)
+{
+  prepare_text_screen();
 
   print_text_2(0, 1,   "********************************");
   print_text_2(0, 2,   "*                              *");
@@ -178,13 +173,7 @@ static void titlescreen()
   print_text_2(0, 27,  "*                              *");
   print_text_2(0, 28,  "********************************");
 
-  /* Reset scroll. */
-  PPUSCROLL = 0;
-  PPUSCROLL = 0;
-
-  /* Turn on PPU. */
-  PPUCTRL = 0x88;
-  PPUMASK = 0x1E;
+  turn_on_ppu();
 
   while (1)
   {
@@ -198,27 +187,10 @@ static void titlescreen()
   }
 }
 
-static void winscreen()
+static void __fastcall__ winscreen(void)
 {
-  u8 i;
-
-  /* Turn off PPU. */
-  PPUCTRL = 0;
-  PPUMASK = 0;
-
-  /* set up a palette. */
-  ppuwrite(0x3f00, 0x0d);
-  ppuwrite(0x3f01, 0x00);
-  ppuwrite(0x3f02, 0x10);
-  ppuwrite(0x3f03, 0x20);
-
-  /* clear nametable. */
-  PPUADDR = 0x23;
-  PPUADDR = 0xC0;
-  for (i = 0; i < 64; i++)
-  {
-    PPUDATA = 0;
-  }
+  static u8 i;
+  prepare_text_screen();
 
   print_text_2(0, 1,   "********************************");
   print_text_2(0, 2,   "*                              *");
@@ -249,13 +221,7 @@ static void winscreen()
   print_text_2(0, 27,  "*                              *");
   print_text_2(0, 28,  "********************************");
 
-  /* Reset scroll. */
-  PPUSCROLL = 0;
-  PPUSCROLL = 0;
-
-  /* Turn on PPU. */
-  PPUCTRL = 0x88;
-  PPUMASK = 0x1E;
+  turn_on_ppu();
 
   clear_sprites();
 
@@ -278,6 +244,60 @@ static void winscreen()
   {
     update_objects();
     wait_vblank();
+  }
+}
+
+static void __fastcall__ death_screen(void)
+{
+  static u8 i;
+  static u16 loop;
+
+  prepare_text_screen();
+  for (loop = 0; loop < 960; ++loop)
+  {
+    ppuwrite(0x2000+loop, 0);
+  }
+
+  game_life--;
+
+  if (game_life > 0)
+  {
+    static char life_thing[2];
+    life_thing[0] = '0' + game_life;
+    life_thing[1] = 0;
+
+    print_text_2(6, 11,  "LIFE LEFT:");
+    print_text_2(16, 11, life_thing);
+  }
+  else
+  {
+    print_text_2(6, 11,  "GAME OVER");
+  }
+
+  turn_on_ppu();
+
+  clear_sprites();
+
+  i = 0x80;
+
+  while (1)
+  {
+    i--;
+    wait_vblank();
+
+    if (i == 0)
+    {
+      if (game_life > 0)
+      {
+        reset_checkpoint();
+      }
+      else
+      {
+        titlescreen();
+        reset();
+      }
+      break;
+    }
   }
 }
 
@@ -606,7 +626,7 @@ static void __fastcall__ dead(void)
   objects_counter[O_PLAYER]--;
   if (objects_counter[O_PLAYER] == 0)
   {
-    reset_checkpoint();
+    death_screen();
   }
 }
 
@@ -832,20 +852,12 @@ static u8 __fastcall__ transition(void)
     return 1;
   }
 
-  /* Turn off PPU. */
-  PPUCTRL = 0;
-  PPUMASK = 0;
+  turn_off_ppu();
 
   num_bullets = 0;
   load_level(current_level);
 
-  /* Reset scroll. */
-  PPUSCROLL = 0;
-  PPUSCROLL = 0;
-
-  /* Turn on PPU. */
-  PPUCTRL = 0x88;
-  PPUMASK = 0x1E;
+  turn_on_ppu();
 
   return 0;
 }

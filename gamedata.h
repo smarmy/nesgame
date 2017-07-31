@@ -4,10 +4,12 @@
 #include "typedef.h"
 
 #define MAX_TREASURES 9
+#define MAX_GAME_LIFE 5
 
 extern u8 current_level;
 extern u8 max_jumps;
 extern u8 player_life;
+extern u8 game_life;
 extern u8 num_bullets;
 extern u8 has_gun;
 extern u8 checkpoint_level;
