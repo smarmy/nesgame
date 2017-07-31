@@ -46,6 +46,9 @@ u8 player_life = 3;
 u8 num_bullets = 0;
 u8 has_gun = 0;
 u8 treasure_states[9] = {0,0,0,0,0,0,0,0,0};
+u8 checkpoint_level = 0;
+u8 checkpoint_x = 0;
+u8 checkpoint_y = 0;
 
 static void reset()
 {
@@ -73,6 +76,47 @@ static void reset()
 
   create_object(O_PLAYER, 80, 176);
   load_level(current_level);
+
+  /* Reset scroll. */
+  PPUSCROLL = 0;
+  PPUSCROLL = 0;
+
+  /* Turn on PPU. */
+  PPUCTRL = 0x88;
+  PPUMASK = 0x1E;
+}
+
+static void reset_checkpoint()
+{
+  u8 i;
+
+  if (checkpoint_level == 0)
+  {
+    reset();
+    return;
+  }
+
+  current_level = checkpoint_level;
+
+  player_life = 3;
+  num_objects = 0;
+  num_bullets = 0;
+
+  /* Turn off PPU. */
+  PPUCTRL = 0;
+  PPUMASK = 0;
+
+  create_object(O_PLAYER, checkpoint_x, checkpoint_y);
+  load_level(current_level);
+
+  /* Remove checkpoints when reseting. */
+  for (i = 0; i < num_objects; i++)
+  {
+    if (objects_type[i] == O_CHECKPOINT)
+    {
+      remove_object(i);
+    }
+  }
 
   /* Reset scroll. */
   PPUSCROLL = 0;
@@ -239,7 +283,6 @@ static void winscreen()
 
 void main()
 {
-  static u8 tile_check_index;
   static u8 gamepad_state;
 
   clear_sprites();
@@ -563,8 +606,7 @@ static void __fastcall__ dead(void)
   objects_counter[O_PLAYER]--;
   if (objects_counter[O_PLAYER] == 0)
   {
-    /* TODO: reset to checkpoint, when that is implemeted. */
-    reset();
+    reset_checkpoint();
   }
 }
 
@@ -703,6 +745,16 @@ static void __fastcall__ check_object_collisions(void)
           has_gun = 1;
           print_text(2, 8, "YOU FOUND GUN!!");
           play_sound(4, 0xC9);
+        }
+        break;
+      case O_CHECKPOINT:
+        if (colcheck_objects(O_PLAYER, i))
+        {
+          remove_object(i);
+          print_text(2, 8, "CHECKPOINT REACHED!!");
+          checkpoint_level = current_level;
+          checkpoint_x = fix2i(objects_x[O_PLAYER]);
+          checkpoint_y = fix2i(objects_y[O_PLAYER]);
         }
         break;
       case O_TREASURE_1:

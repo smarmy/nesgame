@@ -27,6 +27,7 @@
 #define O_TREASURE_7  15
 #define O_TREASURE_8  16
 #define O_TREASURE_9  17
+#define O_CHECKPOINT  18
 #define O_NOTHING   255
 
 extern fixed_t objects_x[MAX_OBJECTS];

@@ -629,6 +629,10 @@ void __fastcall__ create_object(u8 type, u8 x, u8 y)
       BBOX(4, 12, 4, 12);
       objects_sprite_index[num_objects] = 51;
       break;
+    case O_CHECKPOINT:
+      BBOX(4, 12, 4, 12);
+      objects_sprite_index[num_objects] = 91;
+      break;
 
     /* Treasures */
 
