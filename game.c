@@ -266,12 +266,12 @@ static void __fastcall__ death_screen(void)
     life_thing[0] = '0' + game_life;
     life_thing[1] = 0;
 
-    print_text_2(6, 11,  "LIFE LEFT:");
-    print_text_2(16, 11, life_thing);
+    print_text_2(10, 14,  "LIFE LEFT:");
+    print_text_2(20, 14, life_thing);
   }
   else
   {
-    print_text_2(6, 11,  "GAME OVER");
+    print_text_2(12, 14,  "GAME OVER");
   }
 
   turn_on_ppu();
