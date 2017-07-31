@@ -364,7 +364,6 @@ static void __fastcall__ update_bullet(u8 index)
         if (objects_type[i] == O_NOTHING) continue;
         if (colcheck_objects(index, i) == 1)
         {
-          play_sound(4, 0x40);
           remove_object(index);
           num_bullets--;
           if (objects_life[i] > 0)
