@@ -713,6 +713,8 @@ void __fastcall__ hurt_player(u8 hdir)
 {
   if (objects_state[O_PLAYER] == PLAYER_STATE_HURT)
     return;
+  if (player_life == 0)
+    return;
 
   objects_state[O_PLAYER] = PLAYER_STATE_HURT;
   objects_vspeed[O_PLAYER] = fixed(3, 0);
