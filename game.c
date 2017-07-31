@@ -827,9 +827,9 @@ static u8 __fastcall__ transition(void)
   if (x > 240)
   {
     current_level++;
-    objects_x[O_PLAYER] = fixed(16, 0);
+    objects_x[O_PLAYER] = fixed(2, 0);
   }
-  else if (x < 8)
+  else if (x < 2)
   {
     current_level--;
     objects_x[O_PLAYER] = fixed(240, 0);
