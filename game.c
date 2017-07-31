@@ -560,13 +560,34 @@ static void __fastcall__ check_object_collisions(void)
         if (colcheck_objects(O_PLAYER, i))
         {
           has_gun = 1;
+          print_text(2, 8, "YOU FOUND GUN!!");
         }
         break;
       case O_TREASURE_1:
         if (colcheck_objects(O_PLAYER, i))
         {
+          static char remaining_treasures[2];
+          static u8 treasure_count;
+          static u8 loop_c;
+
           u8 treasure_index = objects_state[i];
           treasure_states[treasure_index] = 1;
+
+          treasure_count = 0;
+          for (loop_c = 0; loop_c < MAX_TREASURES; loop_c++)
+          {
+            if (treasure_states[loop_c] == 1) treasure_count++;
+          }
+
+          remaining_treasures[0] = '0' + (MAX_TREASURES - treasure_count);
+          remaining_treasures[1] = 0;
+
+          print_text(2, 8, "YOU GOT TREASURE!!");
+          wait_vblank();
+          print_text(2, 9, "REMAINING:");
+          wait_vblank();
+          print_text(14, 9, remaining_treasures);
+          wait_vblank();
         }
         break;
     }
