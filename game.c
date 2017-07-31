@@ -38,6 +38,8 @@ static u8 jump_button_pressed = 0;
 static u8 jumps = 1;
 static u8 bullet_counter = 0;
 
+static u8 fall_delay = 0;
+
 u8 keys = 0;
 u8 current_level = 0;
 u8 max_jumps = 1;
@@ -95,6 +97,8 @@ void main()
 
     if (bullet_counter > 0)
       bullet_counter--;
+    if (fall_delay > 1)
+      fall_delay--;
 
     /* Update player based on input. */
     switch (objects_state[O_PLAYER])
@@ -217,7 +221,7 @@ static u8 __fastcall__ check_movement(u8 gamepad_state)
     static u8 allow_jump;
     static u8 collision;
 
-    collision = colcheck_down(O_PLAYER);
+    collision = colcheck_down(O_PLAYER) || fall_delay > 1;
 
     if (jumps == 0 && collision == 0)
       allow_jump = 0;
@@ -230,6 +234,8 @@ static u8 __fastcall__ check_movement(u8 gamepad_state)
 
     if (jump_button_pressed == 0 && allow_jump == 1)
     {
+      fall_delay = 1;
+
       jump_button_pressed = 1;
       jumps--;
 
@@ -477,6 +483,9 @@ static u8 __fastcall__ move_player_vertical(void)
 
   if (objects_vdir[O_PLAYER] == DOWN)
   {
+    if (fall_delay == 0)
+      fall_delay = 7;
+
     tmp = objects_y[O_PLAYER] + objects_vspeed[O_PLAYER];
     while (objects_y[O_PLAYER] < tmp)
     {
@@ -485,6 +494,7 @@ static u8 __fastcall__ move_player_vertical(void)
       if (colcheck_down(O_PLAYER))
       {
         objects_vspeed[O_PLAYER] = 0;
+        fall_delay = 0;
         return 0;
       }
     }
