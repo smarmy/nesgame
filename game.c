@@ -85,14 +85,25 @@ static void reset()
 
 static void titlescreen()
 {
+  u8 i;
+
   /* Turn off PPU. */
   PPUCTRL = 0;
   PPUMASK = 0;
 
+  /* set up a palette. */
   ppuwrite(0x3f00, 0x0d);
   ppuwrite(0x3f01, 0x00);
   ppuwrite(0x3f02, 0x10);
   ppuwrite(0x3f03, 0x20);
+
+  /* clear nametable. */
+  PPUADDR = 0x23;
+  PPUADDR = 0xC0;
+  for (i = 0; i < 64; i++)
+  {
+    PPUDATA = 0;
+  }
 
   print_text_2(0, 1,   "********************************");
   print_text_2(0, 2,   "*                              *");
@@ -145,14 +156,25 @@ static void titlescreen()
 
 static void winscreen()
 {
+  u8 i;
+
   /* Turn off PPU. */
   PPUCTRL = 0;
   PPUMASK = 0;
 
+  /* set up a palette. */
   ppuwrite(0x3f00, 0x0d);
   ppuwrite(0x3f01, 0x00);
   ppuwrite(0x3f02, 0x10);
   ppuwrite(0x3f03, 0x20);
+
+  /* clear nametable. */
+  PPUADDR = 0x23;
+  PPUADDR = 0xC0;
+  for (i = 0; i < 64; i++)
+  {
+    PPUDATA = 0;
+  }
 
   print_text_2(0, 1,   "********************************");
   print_text_2(0, 2,   "*                              *");
@@ -190,6 +212,8 @@ static void winscreen()
   /* Turn on PPU. */
   PPUCTRL = 0x88;
   PPUMASK = 0x1E;
+
+  clear_sprites();
 
   num_objects = 0;
   create_object(O_TREASURE_1, 16, 16);
